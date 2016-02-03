@@ -1,0 +1,5 @@
+on divise par H de chaque côté de la case centrale.
+on aplique Taylor sur l'ancienne valeur de la case centrale
+Pour trouver les valeurs des cellules :
+1/6		4/6		 1/6		n-1
+	   cell                   n
