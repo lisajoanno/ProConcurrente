@@ -1,9 +1,9 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c99
+CFLAGS = -std=c99
 EXEC_NAME = main
 INCLUDES =
 LIBS =
-OBJ_FILES = main.c
+OBJ_FILES = main.o
 
 all : $(EXEC_NAME)
 
