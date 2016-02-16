@@ -149,7 +149,7 @@ void init_options_par_defaut() {
 	//~ ETAPES = 12345;
 	//~ NB_THREADS = 13;
     
-    tailles="3";
+    tailles="024";
     //~ Pour les étapes suivantes : "012345"
     etapes="0";
     //~ Pour les étapes suivantes : "13"
@@ -232,7 +232,7 @@ void lancer_selon_options() {
     //~ printf("tailles : %s\n",tailles);
     
     // Temporaires pour garder les étapes, threads et tailles initiales.
-    char* tempEtapes = etapes;
+    //~ char* tempEtapes = etapes;
     char* tempThreads = threads;
     char* tempTailles = tailles;
 
