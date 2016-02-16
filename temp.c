@@ -79,7 +79,7 @@ MAT init() {
     // Initialisation de la zone chauffée initialement
     int idMin =  powi(2,n-1) - powi(2,n-4);
     int idMax = powi(2,n-1) + powi(2,n-4);
-    printf("id min : %d\n",idMin);
+    printf("id min : %d,  ",idMin);
     printf("id max : %d\n",idMax);
     for (int i =  idMin ; i< idMax  ; i++) {
         for (int j=  idMin  ; j<  idMax ; j++) {
@@ -136,6 +136,9 @@ void afficher_options() {
     printf("\n");
 }
 
+
+
+
 /**
  * Initialisations par défaut des options du système (dans le cas où les options ne sont pas précisées par l'utilisateur).
  * */
@@ -148,12 +151,16 @@ void init_options_par_defaut() {
 	//~ ETAPES = 12345;
 	//~ NB_THREADS = 13;
     
-    tailles="024";
+    tailles="01";
     //~ Pour les étapes suivantes : "012345"
     etapes="0";
     //~ Pour les étapes suivantes : "13"
     threads="1";
 }
+
+
+
+
 
 /**
  * Sauvegarde des options précisées par l'utilisateur dans les variables prévues à cet effet.
@@ -205,12 +212,34 @@ void capter_options(int argc, char *argv[]) {
 }
 
 
+// Important : float sinon tous les calculs seront castés en entiers
+float H = 6;
+
+void diffuser_chaleur(MAT m, int i, int j) {
+    
+    float temp = m[i][j];
+    printf("i : %d, j : %d, temp : %f\n",i,j,(1/H));
+    m[i][j-1] = temp*(1/H);
+    m[i][j+1] = temp*(1/H);
+    m[i][j] = temp*(4/H);
+}
+
+void diffuser_chaleur_horizontal(MAT m, int i, int j) {
+    diffuser_chaleur(m,j,i);
+}
+
+void diffuser_chaleur_vertical(MAT m, int i, int j) {
+    diffuser_chaleur(m,i,j);
+}
+
+
 /**
  * Lance la procédure de répartition de la chaleur sur une nouvelle matrice.
  * */
 void lancer_programme() {
     MAT mat = init();  
-    print_quarter_matrice(mat);
+    diffuser_chaleur(mat, TAILLE_MATRICE/2, TAILLE_MATRICE/2);
+    print_matrice(mat);
 }
 
 
