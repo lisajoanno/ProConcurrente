@@ -9,6 +9,7 @@
 int TEMP_FROID = 0;
 int TEMP_CHAUD = 256;
 
+int n;
 int TAILLE_MATRICE; // taille de la matrice entrée par l'utilisateur
 int MES_AFF_CPU; // 1 : mesure et affichage du temps d'execution (consommation du CPU); 0 : non
 int MES_AFF_REPUSER; // 1 : mesure et affichage du temps d'execution (temps de réponse utilisateur); 0 : non
@@ -50,13 +51,25 @@ typedef float **MAT;
 //~ }
 
 /**
+ * Réimplémentation de la fonction pow à cause des problèmes causés par celle de la librairie math.h.
+ * */
+int powi(int number, int exponent)
+{
+	int i, product = 1;
+	for (i = 0; i < exponent; i++)
+		product *= number;
+
+	return product;
+}
+
+/**
  * Alloue l'espace mémoire nécessaire à la matrice.
  * Initialise toutes les cases à 0 sauf la plaque interne.
  * */
 MAT init() {
     // Allouer la place pour la matrice
 	MAT mat =  malloc(sizeof(float) * TAILLE_MATRICE * TAILLE_MATRICE);
-    // Initialisation de la matrice
+    // Initialisation de la matrice à 0 partout
     for (int i =0; i<TAILLE_MATRICE; i++) {
         for (int j=0; j<TAILLE_MATRICE; j++) {
             mat[i] = (float *) malloc(sizeof(float) * TAILLE_MATRICE);
@@ -64,7 +77,18 @@ MAT init() {
         }
     }
     
-    mat[TAILLE_MATRICE/2][TAILLE_MATRICE/2] = TEMP_CHAUD;
+    // Initialisation de la zone chauffée initialement
+    int idMin =  powi(2,n-1) - powi(2,n-4);
+    int idMax = powi(2,n-1) + powi(2,n-4);
+    printf("id min : %d\n",idMin);
+    printf("id max : %d\n",idMax);
+    for (int i =  idMin+1  ; i< idMax  ; i++) {
+        for (int j=  idMin+1  ; j<  idMax ; j++) {
+            mat[i][j] = TEMP_CHAUD;
+        }
+    }
+    
+    //~ mat[TAILLE_MATRICE/2][TAILLE_MATRICE/2] = TEMP_CHAUD;
     
 	return mat;
 }
@@ -75,7 +99,7 @@ MAT init() {
 void print_matrice(MAT m) {
     for (int i =0; i<TAILLE_MATRICE; i++) {
         for (int j=0; j<TAILLE_MATRICE; j++) {
-            printf("%.2f ",m[i][j]);
+            printf("%.1f ",m[i][j]);
         }
         printf("\n");
     }
@@ -87,7 +111,7 @@ void print_matrice(MAT m) {
 void print_quarter_matrice(MAT m) {
     for (int i =0; i<TAILLE_MATRICE/2; i++) {
         for (int j=0; j<TAILLE_MATRICE/2; j++) {
-            printf("%.2f ",m[i][j]);
+            printf("%.0f",m[i][j]);
         }
         printf("\n");
     }
@@ -126,8 +150,10 @@ void init_options_par_defaut() {
 	//~ NB_THREADS = 13;
     
     tailles="024";
-    etapes="012345";
-    threads="13";
+    //~ Pour les étapes suivantes : "012345"
+    etapes="0";
+    //~ Pour les étapes suivantes : "13"
+    threads="1";
 }
 
 /**
@@ -185,20 +211,10 @@ void capter_options(int argc, char *argv[]) {
  * */
 void lancer_programme() {
     MAT mat = init();  
-    afficher_options();
+    print_quarter_matrice(mat);
 }
 
-/**
- * Réimplémentation de la fonction pow à cause des problèmes causés par celle de la librairie math.h.
- * */
-int powi(int number, int exponent)
-{
-	int i, product = 1;
-	for (i = 0; i < exponent; i++)
-		product *= number;
 
-	return product;
-}
 
 
 /**
@@ -237,8 +253,11 @@ void lancer_selon_options() {
             tailles=tempTailles;
             while (*tailles++)
             {
-                printf("      Problème de taille... %c\n",*(tailles-1));
-                TAILLE_MATRICE = (int) powi(2, (int) ((*(tailles-1)) - '0'));
+                n = ((*(tailles-1)) - '0' )+4;
+                printf("      Problème de taille... %d\n",n);
+                
+                TAILLE_MATRICE = (int) powi(2, n);
+                
                 
                 // On a bien initialisé ETAPES, NB_THREADS et TAILLE_MATRICE.
                 // On lance le programme pour chacunes des configurations
