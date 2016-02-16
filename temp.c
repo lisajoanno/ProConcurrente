@@ -58,7 +58,6 @@ int powi(int number, int exponent)
 	int i, product = 1;
 	for (i = 0; i < exponent; i++)
 		product *= number;
-
 	return product;
 }
 
