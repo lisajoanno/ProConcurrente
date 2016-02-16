@@ -82,8 +82,8 @@ MAT init() {
     int idMax = powi(2,n-1) + powi(2,n-4);
     printf("id min : %d\n",idMin);
     printf("id max : %d\n",idMax);
-    for (int i =  idMin+1  ; i< idMax  ; i++) {
-        for (int j=  idMin+1  ; j<  idMax ; j++) {
+    for (int i =  idMin ; i< idMax  ; i++) {
+        for (int j=  idMin  ; j<  idMax ; j++) {
             mat[i][j] = TEMP_CHAUD;
         }
     }
@@ -149,7 +149,7 @@ void init_options_par_defaut() {
 	//~ ETAPES = 12345;
 	//~ NB_THREADS = 13;
     
-    tailles="024";
+    tailles="3";
     //~ Pour les étapes suivantes : "012345"
     etapes="0";
     //~ Pour les étapes suivantes : "13"
