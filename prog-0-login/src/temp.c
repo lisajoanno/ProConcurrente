@@ -21,7 +21,7 @@
 // Temperatures (en degres) des cases non chauffees a l'etat initial
 int TEMP_FROID = 0;
 // Temperature (en degres) des cases chauffees a l'etait initial
-int TEMP_CHAUD = 256;
+int TEMP_CHAUD = 36;
 // Taille de la matrice courante entree par l'utilisateur (taille = n+4)
 int n;
 // Taille de la matrice courante
@@ -100,7 +100,19 @@ MAT init() {
     }
     
     // Copie de mat dans current
-    current = mat;
+    current = malloc(sizeof(float) * TAILLE_MATRICE * TAILLE_MATRICE);
+    for (int i =0; i<TAILLE_MATRICE; i++) {
+        for (int j=0; j<TAILLE_MATRICE; j++) {
+            current[i] = (float *) malloc(sizeof(float) * TAILLE_MATRICE);
+            current [i][j] = 0;
+        }
+    }
+    
+    for (int i = 0; i < TAILLE_MATRICE; i++) {
+        for(int j = 0; j < TAILLE_MATRICE; j++) {
+            current[i][j] = mat[i][j];
+        }
+    }
 
 	return mat;
 }
@@ -214,7 +226,7 @@ void capter_options(int argc, char *argv[]) {
 }
 
 
-void diffuser_chaleur(MAT m, int j) {
+void diffuser_chaleur(MAT m, int i) {
     /*float temp = m[i][j];
     //printf("i : %d, j : %d, temp : %f\n",i,j,(1/H));
     m[i][j-1] = temp*(1/H);
@@ -222,14 +234,17 @@ void diffuser_chaleur(MAT m, int j) {
     m[i][j] = temp*(4/H);*/
 
     // on propage la chaleur selon les x vers la droite
-    for(int i = 0; i < TAILLE_MATRICE; i++) {
-        m[i][j] = ((1/H) * mat[i][j - 1]) + ((4/H) * mat[i][j]) + ((1/H) * mat[i] [j + 1]);
-        m[i][j - 1] = ((1/H) * mat[i][j - 1]) + ((4/H) * mat[i][j]) + ((1/H) * mat[i] [j + 1]);
-        m[i][j + 1] = ((1/H) * mat[i][j - 1]) + ((4/H) * mat[i][j]) + ((1/H) * mat[i] [j + 1]);
+    for(int j = 1; j < TAILLE_MATRICE; j++) {
+        m[i][j] = ((1/H) * mat[i][j - 1]) + ((4/H) * mat[i][j]) + ((1/H) * mat[i][j + 1]);
     }
-
-    //~ print_matrice(m);
-    //~ printf("\n");
+    // on copie les valeurs de la nouvelle matrice dans mat
+    for (int i = 0; i < TAILLE_MATRICE; i++) {
+        for(int j = 0; j < TAILLE_MATRICE; j++) {
+            mat[i][j] = m[i][j];
+        }
+    }
+    /*print_matrice(m);
+    printf("\n");*/
 }
 /*
 void diffuser_chaleur_horizontal(MAT m, int i, int j) {
@@ -258,7 +273,7 @@ void lancer_programme() {
     
     for(int i = 0; i < NB_EXE; i++) {
         //~ printf("Etape %d :\n", i + 1);
-        diffuser_chaleur(current, TAILLE_MATRICE/2 + i);
+        diffuser_chaleur(current, TAILLE_MATRICE/2);
     }
     
     if (AFF) {
@@ -338,8 +353,6 @@ void lancer_selon_options() {
                 
                 TAILLE_MATRICE = (int) powi(2, n);
                 printf("      Probleme de TAILLE_MATRICE... %d\n",TAILLE_MATRICE);
-                
-                
                 
                 // On a bien initialise ETAPES, NB_THREADS et TAILLE_MATRICE.
                 // On lance le programme pour chacunes des configurations
