@@ -37,6 +37,7 @@ char* tailles;
 
 typedef float **MAT;
 
+MAT mat, current;
 
 //~ matrice* init_matrice() {
 	//~ matrice* mat = malloc(sizeof(matrice));
@@ -67,7 +68,7 @@ int powi(int number, int exponent)
  * */
 MAT init() {
     // Allouer la place pour la matrice
-	MAT mat =  malloc(sizeof(float) * TAILLE_MATRICE * TAILLE_MATRICE);
+	mat =  malloc(sizeof(float) * TAILLE_MATRICE * TAILLE_MATRICE);
     // Initialisation de la matrice à 0 partout
     for (int i =0; i<TAILLE_MATRICE; i++) {
         for (int j=0; j<TAILLE_MATRICE; j++) {
@@ -79,16 +80,17 @@ MAT init() {
     // Initialisation de la zone chauffée initialement
     int idMin =  powi(2,n-1) - powi(2,n-4);
     int idMax = powi(2,n-1) + powi(2,n-4);
-    printf("id min : %d,  ",idMin);
-    printf("id max : %d\n",idMax);
-    for (int i =  idMin ; i< idMax  ; i++) {
-        for (int j=  idMin  ; j<  idMax ; j++) {
+    /*printf("id min : %d,  ",idMin);
+    printf("id max : %d\n",idMax);*/
+    for (int i =  idMin ; i < idMax  ; i++) {
+        for (int j =  idMin  ; j <  idMax ; j++) {
             mat[i][j] = TEMP_CHAUD;
         }
     }
     
     //~ mat[TAILLE_MATRICE/2][TAILLE_MATRICE/2] = TEMP_CHAUD;
-    
+    current = mat;
+
 	return mat;
 }
 
@@ -98,9 +100,9 @@ MAT init() {
 void print_matrice(MAT m) {
     for (int i =0; i<TAILLE_MATRICE; i++) {
         for (int j=0; j<TAILLE_MATRICE; j++) {
-            printf("%.1f ",m[i][j]);
+            printf("| %.1f ",m[i][j]);
         }
-        printf("\n");
+        printf("|\n");
     }
 }
 
@@ -110,9 +112,9 @@ void print_matrice(MAT m) {
 void print_quarter_matrice(MAT m) {
     for (int i =0; i<TAILLE_MATRICE/2; i++) {
         for (int j=0; j<TAILLE_MATRICE/2; j++) {
-            printf("%.0f",m[i][j]);
+            printf("| %.0f",m[i][j]);
         }
-        printf("\n");
+        printf("|\n");
     }
 }
 
@@ -152,9 +154,9 @@ void init_options_par_defaut() {
 	//~ NB_THREADS = 13;
     
     tailles="01";
-    //~ Pour les étapes suivantes : "012345"
+    //~ Pour les étapes suivantes : "0"
     etapes="0";
-    //~ Pour les étapes suivantes : "13"
+    //~ Pour les étapes suivantes : "1"
     threads="1";
 }
 
@@ -215,15 +217,24 @@ void capter_options(int argc, char *argv[]) {
 // Important : float sinon tous les calculs seront castés en entiers
 float H = 6;
 
-void diffuser_chaleur(MAT m, int i, int j) {
-    
-    float temp = m[i][j];
-    printf("i : %d, j : %d, temp : %f\n",i,j,(1/H));
+void diffuser_chaleur(MAT m, int j) {
+    /*float temp = m[i][j];
+    //printf("i : %d, j : %d, temp : %f\n",i,j,(1/H));
     m[i][j-1] = temp*(1/H);
     m[i][j+1] = temp*(1/H);
-    m[i][j] = temp*(4/H);
-}
+    m[i][j] = temp*(4/H);*/
 
+    // on propage la chaleur selon les x vers la droite
+    for(int i = 0; i < TAILLE_MATRICE; i++) {
+        m[i][j] = ((1/H) * mat[i][j - 1]) + ((4/H) * mat[i][j]) + ((1/H) * mat[i] [j + 1]);
+        m[i][j - 1] = ((1/H) * mat[i][j - 1]) + ((4/H) * mat[i][j]) + ((1/H) * mat[i] [j + 1]);
+        m[i][j + 1] = ((1/H) * mat[i][j - 1]) + ((4/H) * mat[i][j]) + ((1/H) * mat[i] [j + 1]);
+    }
+
+    print_matrice(m);
+    printf("\n");
+}
+/*
 void diffuser_chaleur_horizontal(MAT m, int i, int j) {
     diffuser_chaleur(m,j,i);
 }
@@ -232,14 +243,18 @@ void diffuser_chaleur_vertical(MAT m, int i, int j) {
     diffuser_chaleur(m,i,j);
 }
 
-
+*/
 /**
  * Lance la procédure de répartition de la chaleur sur une nouvelle matrice.
  * */
 void lancer_programme() {
-    MAT mat = init();  
-    diffuser_chaleur(mat, TAILLE_MATRICE/2, TAILLE_MATRICE/2);
+    init();
+    printf("Etape 0 :\n");
     print_matrice(mat);
+    for(int i = 0; i < NB_EXE; i++) {
+        printf("Etape %d :\n", i + 1);
+        diffuser_chaleur(current, TAILLE_MATRICE/2 + i);
+    }  
 }
 
 
@@ -311,13 +326,16 @@ int main(int argc, char *argv[]) {
 
 	init_options_par_defaut();
 	if (argc == 1) {
-		printf("Il n'y a pas eu d'argument.\n");
+		//printf("Il n'y a pas eu d'argument.\n");
 	} else {
-		printf("Il y a eu des arguments.\n");
+		//printf("Il y a eu des arguments.\n");
 		capter_options(argc,argv);
 	}
     
     lancer_selon_options();
+
+    // Libérer allocation mémoire
+    free(mat);
 
 	return 0;
 }
