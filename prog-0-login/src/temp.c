@@ -81,7 +81,7 @@ int powi(int number, int exponent)
  * */
 MAT init() {
     // Alloue la place pour la matrice
-	mat =  malloc(sizeof(float) * TAILLE_MATRICE * TAILLE_MATRICE);
+	mat = malloc(sizeof(float) * TAILLE_MATRICE * TAILLE_MATRICE);
     // Initialisation de la matrice a 0 partout
     for (int i =0; i<TAILLE_MATRICE; i++) {
         for (int j=0; j<TAILLE_MATRICE; j++) {
@@ -184,20 +184,20 @@ void capter_options(int argc, char *argv[]) {
 
 	int option = 0;
     // Specification des options acceptees : -s, -r, -t, -i, -m, -M et -a
-    while ((option = getopt(argc, argv,"s:e:t:i:mMa")) != -1) {
+    while ((option = getopt(argc, argv,"i:e:s:t:mMa")) != -1) {
         switch (option) {
-            case 's' : 
-                tailles = optarg;
+            case 'i' : 
+            	NB_EXE = atoi(optarg);
                 break;
             case 'e' :
                 etapes = optarg;
                 break;
-            case 't' : 
-                threads=optarg;
-             	break;
-            case 'i' : 
-            	NB_EXE = atoi(optarg);
+            case 's' : 
+                tailles = optarg;
                 break;
+            case 't' : 
+                threads = optarg;
+             	break;
             case 'm' : 
              	MES_AFF_CPU = 1;
                 break;
@@ -228,8 +228,8 @@ void diffuser_chaleur(MAT m, int j) {
         m[i][j + 1] = ((1/H) * mat[i][j - 1]) + ((4/H) * mat[i][j]) + ((1/H) * mat[i] [j + 1]);
     }
 
-    print_matrice(m);
-    printf("\n");
+    //~ print_matrice(m);
+    //~ printf("\n");
 }
 /*
 void diffuser_chaleur_horizontal(MAT m, int i, int j) {
@@ -245,13 +245,28 @@ void diffuser_chaleur_vertical(MAT m, int i, int j) {
  * Lance la procedure de repartition de la chaleur sur une nouvelle matrice.
  * */
 void lancer_programme() {
+    printf("Dans lancer programme");
     init();
-    printf("Etape 0 :\n");
-    print_matrice(mat);
+    //~ printf("Etape 0 :\n");
+    
+    afficher_options();
+
+    if (AFF == 1) {
+        printf("Temperature initiale :\n");
+        print_quarter_matrice(mat);
+    }
+    
     for(int i = 0; i < NB_EXE; i++) {
-        printf("Etape %d :\n", i + 1);
+        //~ printf("Etape %d :\n", i + 1);
         diffuser_chaleur(current, TAILLE_MATRICE/2 + i);
-    }  
+    }
+    
+    if (AFF) {
+        printf("Temperature finale :\n");
+        print_quarter_matrice(mat);
+    }   
+    free(mat);
+    //~ free(current);
 }
 
 
@@ -267,14 +282,22 @@ void lancer_programme() {
  * ETAPES, NB_THREADS et TAILLE_MATRICE.
  * */
 void lancer_selon_options() {
+    
+    /**
+    
     // Temporaires pour garder les etapes, threads et tailles initiales.
     //~ char* tempEtapes = etapes;
     char* tempThreads = threads;
     char* tempTailles = tailles;
+    
+    //~ printf("etape %s\n",etapes);
+    //~ printf("thread %s\n",threads);
+    //~ printf("tailles %s\n",tailles);
 
     // Parcours des etapes
     while (*etapes++)
     {
+        
         printf("Execution de l'etape... %c\n",*(etapes-1));
         ETAPES = (*(etapes-1));
         
@@ -293,6 +316,8 @@ void lancer_selon_options() {
                 printf("      Probleme de taille... %d\n",n);
                 
                 TAILLE_MATRICE = (int) powi(2, n);
+                printf("      Probleme de TAILLE_MATRICE... %d\n",TAILLE_MATRICE);
+                
                 
                 
                 // On a bien initialise ETAPES, NB_THREADS et TAILLE_MATRICE.
@@ -303,6 +328,23 @@ void lancer_selon_options() {
         }
         printf("\n");
     }
+    
+    **/
+    
+            while (*tailles++)
+            {
+                n = ((*(tailles-1)) - '0' )+4;
+                printf("      Probleme de taille... %d\n",n);
+                
+                TAILLE_MATRICE = (int) powi(2, n);
+                printf("      Probleme de TAILLE_MATRICE... %d\n",TAILLE_MATRICE);
+                
+                
+                
+                // On a bien initialise ETAPES, NB_THREADS et TAILLE_MATRICE.
+                // On lance le programme pour chacunes des configurations
+                lancer_programme();
+            }
 
 }
 
@@ -330,7 +372,7 @@ int main(int argc, char *argv[]) {
     lancer_selon_options();
 
     // Liberer allocation memoire
-    free(mat);
+    //~ free(mat);
 
 	return 0;
 }
