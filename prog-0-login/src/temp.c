@@ -77,7 +77,7 @@ int powi(int number, int exponent)
 
 /**
  * Alloue l'espace memoire necessaire a la matrice.
- * Initialise toutes les cases à 0 sauf la plaque interne.
+ * Initialise toutes les cases a 0 sauf la plaque interne.
  * */
 MAT init() {
     // Alloue la place pour la matrice
@@ -162,7 +162,7 @@ void init_options_par_defaut() {
 	AFF = 0; 
 	NB_EXE = 10000; 
     
-    //~ Pour les étapes suivantes : "024"
+    //~ Pour les etapes suivantes : "024"
     tailles="024";
     //~ Etape 0 disponible
     etapes="0";
@@ -175,7 +175,7 @@ void init_options_par_defaut() {
 
 
 /**
- * Sauvegarde des options precisees par l'utilisateur dans les variables prevues à cet effet.
+ * Sauvegarde des options precisees par l'utilisateur dans les variables prevues a cet effet.
  * */
 void capter_options(int argc, char *argv[]) {
 	MES_AFF_CPU = 0;
@@ -329,7 +329,7 @@ int main(int argc, char *argv[]) {
     
     lancer_selon_options();
 
-    // Libérer allocation mémoire
+    // Liberer allocation memoire
     free(mat);
 
 	return 0;
