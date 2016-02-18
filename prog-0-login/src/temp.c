@@ -3,56 +3,69 @@
 #include <unistd.h> // pour getopt
 #include <getopt.h> // pour getopt
 
+/**
+ * 
+ * Projet de programmation concurrente : diffusion de la chaleur
+ * SI4 2015/2016
+ * 
+ * Auteurs : Arnaud Garnier & Lisa Joanno
+ * 
+ * Le programme suivant permet de visualiser le phenomene de diffusion de la chaleur sur une
+ * plaque a deux dimensions.
+ * 
+ * **/
+
 
 /******************* PARAMETRES DU SYSTEME ****************************/
 
+// Temperatures (en degres) des cases non chauffees a l'etat initial
 int TEMP_FROID = 0;
+// Temperature (en degres) des cases chauffees a l'etait initial
 int TEMP_CHAUD = 256;
-
+// Taille de la matrice courante entree par l'utilisateur (taille = n+4)
 int n;
-int TAILLE_MATRICE; // taille de la matrice entrée par l'utilisateur
-int MES_AFF_CPU; // 1 : mesure et affichage du temps d'execution (consommation du CPU); 0 : non
-int MES_AFF_REPUSER; // 1 : mesure et affichage du temps d'execution (temps de réponse utilisateur); 0 : non
-int AFF; // 1 : affichage de la température initiale et de la température finale  pour les indices  correspondant au quart supérieur gauche du tableau; 0 : non
-int NB_EXE; // nombre d'itérations à éxecuter
-int ETAPES; // étapes du programme à exécuter
-int NB_THREADS; // nombre de threads a créer
+// Taille de la matrice courante
+int TAILLE_MATRICE; 
+// 1 : mesure et affichage du temps d'execution (consommation du CPU)
+// 0 : non
+int MES_AFF_CPU; 
+// 1 : mesure et affichage du temps d'execution (temps de reponse utilisateur)
+// 0 : non
+int MES_AFF_REPUSER; 
+// 1 : affichage de la temperature initiale et de la temperature finale pour les indices correspondant au quart superieur gauche du tableau
+// 0 : non
+int AFF; 
+// Nombre d'iterations a executer
+int NB_EXE; 
+// Etape du programme a executer
+int ETAPES; 
+// Nombre de threads a creer
+int NB_THREADS; 
 
-//~ #define taille pow(2,(TAILLE_MATRICE+4))
-
-//~ typedef struct {
-  //~ int taille;
-  //~ float* data;
-//~ } matrice;
+// Constantes utilisee dans la formule de Taylor, fixee ici a 6
+float H = 6;
 
 
-
+// Chaines de caracteres contenant les options de l'utilisateur.
+// etapes, par exemple : "012345"
 char* etapes;
+// threads, par exemple "13"
 char* threads;
+// tailles, par exemple "024"
 char* tailles;
 
 
 
 /*********** DECLARATION & INITIALISATION DE LA MATRICE ****************/
 
+// La matrice est representee par un float**
 typedef float **MAT;
 
+// On definit deux matrices
 MAT mat, current;
 
-//~ matrice* init_matrice() {
-	//~ matrice* mat = malloc(sizeof(matrice));
-	//~ mat->taille = TAILLE_MATRICE;
-	//~ mat->data = malloc(mat->taille * mat->taille * sizeof(float));
-	//~ int i;
-	//~ for (i = 0; i < mat->taille*mat->taille; i++) {
-    	//~ mat->data[i] = 0.0;
-	//~ }
-	//~ 
-	//~ return mat;
-//~ }
-
 /**
- * Réimplémentation de la fonction pow à cause des problèmes causés par celle de la librairie math.h.
+ * Reimplementation de la fonction pow a cause des problemes causes par celle de la librairie math.h.
  * */
 int powi(int number, int exponent)
 {
@@ -63,13 +76,13 @@ int powi(int number, int exponent)
 }
 
 /**
- * Alloue l'espace mémoire nécessaire à la matrice.
+ * Alloue l'espace memoire necessaire a la matrice.
  * Initialise toutes les cases à 0 sauf la plaque interne.
  * */
 MAT init() {
-    // Allouer la place pour la matrice
+    // Alloue la place pour la matrice
 	mat =  malloc(sizeof(float) * TAILLE_MATRICE * TAILLE_MATRICE);
-    // Initialisation de la matrice à 0 partout
+    // Initialisation de la matrice a 0 partout
     for (int i =0; i<TAILLE_MATRICE; i++) {
         for (int j=0; j<TAILLE_MATRICE; j++) {
             mat[i] = (float *) malloc(sizeof(float) * TAILLE_MATRICE);
@@ -77,25 +90,23 @@ MAT init() {
         }
     }
     
-    // Initialisation de la zone chauffée initialement
+    // Initialisation de la zone chauffee initialement
     int idMin =  powi(2,n-1) - powi(2,n-4);
     int idMax = powi(2,n-1) + powi(2,n-4);
-    /*printf("id min : %d,  ",idMin);
-    printf("id max : %d\n",idMax);*/
     for (int i =  idMin ; i < idMax  ; i++) {
         for (int j =  idMin  ; j <  idMax ; j++) {
             mat[i][j] = TEMP_CHAUD;
         }
     }
     
-    //~ mat[TAILLE_MATRICE/2][TAILLE_MATRICE/2] = TEMP_CHAUD;
+    // Copie de mat dans current
     current = mat;
 
 	return mat;
 }
 
 /**
- * Affiche la matrice en paramètre.
+ * Affiche la matrice en parametre.
  * */
 void print_matrice(MAT m) {
     for (int i =0; i<TAILLE_MATRICE; i++) {
@@ -107,14 +118,14 @@ void print_matrice(MAT m) {
 }
 
 /**
- * Affiche le quart supérieur gauche de la matrice en paramètre.
+ * Affiche le quart superieur gauche de la matrice en parametre.
  * */
 void print_quarter_matrice(MAT m) {
     for (int i =0; i<TAILLE_MATRICE/2; i++) {
         for (int j=0; j<TAILLE_MATRICE/2; j++) {
-            printf("| %.0f ",m[i][j]);
+            printf("| %.1f ",m[i][j]);
         }
-        printf("| \n");
+        printf("|\n");
     }
 }
 
@@ -142,22 +153,20 @@ void afficher_options() {
 
 
 /**
- * Initialisations par défaut des options du système (dans le cas où les options ne sont pas précisées par l'utilisateur).
+ * Initialisations par defaut des options du systeme (dans le cas ou les options ne sont pas precisees par l'utilisateur).
+ * Fonction normalement inutilisee car les options doivent etre precisees mais utile en phase de developpement.
  * */
 void init_options_par_defaut() {
-	//~ TAILLE_MATRICE = 24;
 	MES_AFF_CPU = 1; 
 	MES_AFF_REPUSER = 0;
 	AFF = 0; 
 	NB_EXE = 10000; 
-	//~ ETAPES = 12345;
-	//~ NB_THREADS = 13;
     
     //~ Pour les étapes suivantes : "024"
-    tailles="0";
-    //~ Pour les étapes suivantes : "012345"
+    tailles="024";
+    //~ Etape 0 disponible
     etapes="0";
-    //~ Pour les étapes suivantes : "13"
+    //~ A l'etape 0, pas de thread
     threads="1";
 }
 
@@ -166,7 +175,7 @@ void init_options_par_defaut() {
 
 
 /**
- * Sauvegarde des options précisées par l'utilisateur dans les variables prévues à cet effet.
+ * Sauvegarde des options precisees par l'utilisateur dans les variables prevues à cet effet.
  * */
 void capter_options(int argc, char *argv[]) {
 	MES_AFF_CPU = 0;
@@ -174,28 +183,18 @@ void capter_options(int argc, char *argv[]) {
 	AFF = 0; 
 
 	int option = 0;
-    //Specifying the expected options
-    //The two options l and b expect numbers as argument
+    // Specification des options acceptees : -s, -r, -t, -i, -m, -M et -a
     while ((option = getopt(argc, argv,"s:e:t:i:mMa")) != -1) {
         switch (option) {
             case 's' : 
-             	//~ if (atoi(optarg) <= 9 && atoi(optarg) >= 0) {
-             		//~ TAILLE_MATRICE = atoi(optarg);
-                    tailles=optarg;
-             	//~ }
+                tailles = optarg;
                 break;
-            case 'e' : 
-            	//~ if (atoi(optarg) <= 6 && atoi(optarg) >= 0) {
-             		//~ ETAPES = atoi(optarg);
-                    etapes=optarg;
-             	//~ }
+            case 'e' :
+                etapes = optarg;
                 break;
             case 't' : 
-            	//~ if (atoi(optarg) <= 6 && atoi(optarg) >= 0) {
-             		//~ NB_THREADS = atoi(optarg);
-                    threads=optarg;
-             	//~ }
-                break;
+                threads=optarg;
+             	break;
             case 'i' : 
             	NB_EXE = atoi(optarg);
                 break;
@@ -214,9 +213,6 @@ void capter_options(int argc, char *argv[]) {
     }
 }
 
-
-// Important : float sinon tous les calculs seront castés en entiers
-float H = 6;
 
 void diffuser_chaleur(MAT m, int j) {
     /*float temp = m[i][j];
@@ -246,7 +242,7 @@ void diffuser_chaleur_vertical(MAT m, int i, int j) {
 
 */
 /**
- * Lance la procédure de répartition de la chaleur sur une nouvelle matrice.
+ * Lance la procedure de repartition de la chaleur sur une nouvelle matrice.
  * */
 void lancer_programme() {
     init();
@@ -263,7 +259,7 @@ void lancer_programme() {
 
 /**
  * Lance un nouveau programme pour chaque :
- * - étape
+ * - etape
  * - nombre de thread
  * - taille de matrice
  * 
@@ -271,19 +267,15 @@ void lancer_programme() {
  * ETAPES, NB_THREADS et TAILLE_MATRICE.
  * */
 void lancer_selon_options() {
-    //~ printf("etapes : %s\n",etapes);
-    //~ printf("threads : %s\n",threads);
-    //~ printf("tailles : %s\n",tailles);
-    
-    // Temporaires pour garder les étapes, threads et tailles initiales.
+    // Temporaires pour garder les etapes, threads et tailles initiales.
     //~ char* tempEtapes = etapes;
     char* tempThreads = threads;
     char* tempTailles = tailles;
 
-    // Parcours des étapes
+    // Parcours des etapes
     while (*etapes++)
     {
-        printf("Exécution de l'étape... %c\n",*(etapes-1));
+        printf("Execution de l'etape... %c\n",*(etapes-1));
         ETAPES = (*(etapes-1));
         
         // Parcours des nombres de threads
@@ -298,12 +290,12 @@ void lancer_selon_options() {
             while (*tailles++)
             {
                 n = ((*(tailles-1)) - '0' )+4;
-                printf("      Problème de taille... %d\n",n);
+                printf("      Probleme de taille... %d\n",n);
                 
                 TAILLE_MATRICE = (int) powi(2, n);
                 
                 
-                // On a bien initialisé ETAPES, NB_THREADS et TAILLE_MATRICE.
+                // On a bien initialise ETAPES, NB_THREADS et TAILLE_MATRICE.
                 // On lance le programme pour chacunes des configurations
                 lancer_programme();
             }
@@ -318,13 +310,15 @@ void lancer_selon_options() {
 /**
  * Programme principal.
  * 
- * Commence par initialiser les options, puis capte les potentielles options données par l'utilisateur.
+ * Commence par initialiser les options, puis capte les potentielles options donnees par l'utilisateur.
  * 
  * Lance ensuite une fonction qui, elle, lancera le programme suivant toutes les configurations.
+ * 
+ * Libere la memoire a la fin de l'execution du programme.
  * */
 int main(int argc, char *argv[]) {
-	printf("Programme de test\n");
-
+	printf("Programme de simulation de la diffusion de la chaleur\n");
+    
 	init_options_par_defaut();
 	if (argc == 1) {
 		//printf("Il n'y a pas eu d'argument.\n");
