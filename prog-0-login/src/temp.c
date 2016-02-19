@@ -41,6 +41,8 @@ int NB_EXE;
 int ETAPES; 
 // Nombre de threads a creer
 int NB_THREADS; 
+// Nombre de cases de la zone interne
+int TAILLE_ZONE_INT;
 
 // Constantes utilisee dans la formule de Taylor, fixee ici a 6
 float H = 6;
@@ -93,6 +95,7 @@ MAT init() {
     // Initialisation de la zone chauffee initialement
     int idMin =  powi(2,n-1) - powi(2,n-4);
     int idMax = powi(2,n-1) + powi(2,n-4);
+    TAILLE_ZONE_INT = idMax - idMin;
     for (int i =  idMin ; i < idMax  ; i++) {
         for (int j =  idMin  ; j <  idMax ; j++) {
             mat[i][j] = TEMP_CHAUD;
@@ -225,63 +228,69 @@ void capter_options(int argc, char *argv[]) {
     }
 }
 
-
-void diffuser_chaleur(MAT m, int i) {
-    /*float temp = m[i][j];
-    //printf("i : %d, j : %d, temp : %f\n",i,j,(1/H));
-    m[i][j-1] = temp*(1/H);
-    m[i][j+1] = temp*(1/H);
-    m[i][j] = temp*(4/H);*/
-
-    // on propage la chaleur selon les x vers la droite
-    for(int j = 1; j < TAILLE_MATRICE; j++) {
-        m[i][j] = ((1/H) * mat[i][j - 1]) + ((4/H) * mat[i][j]) + ((1/H) * mat[i][j + 1]);
-    }
-    // on copie les valeurs de la nouvelle matrice dans mat
-    for (int i = 0; i < TAILLE_MATRICE; i++) {
+// Propagation de la chaleur selon l'axe x
+void diffuser_chaleur_x(MAT m) {
+    for(int i = 0; i < TAILLE_MATRICE; i++) {
         for(int j = 0; j < TAILLE_MATRICE; j++) {
-            mat[i][j] = m[i][j];
+            m[i][j] = ((1/H) * mat[i][j - 1]) + ((4/H) * mat[i][j]) + ((1/H) * mat[i][j + 1]);
+        }
+        // Copie des valeurs de la nouvelle matrice dans mat
+        for (int i = 0; i < TAILLE_MATRICE; i++) {
+            for(int j = 0; j < TAILLE_MATRICE; j++) {
+                mat[i][j] = m[i][j];
+            }
         }
     }
-    /*print_matrice(m);
-    printf("\n");*/
-}
-/*
-void diffuser_chaleur_horizontal(MAT m, int i, int j) {
-    diffuser_chaleur(m,j,i);
 }
 
-void diffuser_chaleur_vertical(MAT m, int i, int j) {
-    diffuser_chaleur(m,i,j);
+// Propagation de la chaleur selon l'axe y
+// NB : trouver une façon de factoriser les deux fonctions en une seule
+void diffuser_chaleur_y(MAT m) {
+    for(int j = 0; j < TAILLE_MATRICE; j++) {
+        for(int i = 0; i < TAILLE_MATRICE; i++) {
+            if (i == 0) {
+                m[i][j] = ((4/H) * mat[i][j]) + ((1/H) * mat[i + 1][j]);
+            } else if (i == TAILLE_MATRICE - 1) {
+                m[i][j] = ((1/H) * mat[i - 1][j]) + ((4/H) * mat[i][j]);
+            } else {
+                m[i][j] = ((1/H) * mat[i - 1][j]) + ((4/H) * mat[i][j]) + ((1/H) * mat[i + 1][j]);
+            }
+        }
+        // Copie des valeurs de la nouvelle matrice dans mat
+        for (int i = 0; i < TAILLE_MATRICE; i++) {
+            for(int j = 0; j < TAILLE_MATRICE; j++) {
+                mat[i][j] = m[i][j];
+            }
+        }
+    }
 }
 
-*/
+
+
 /**
  * Lance la procedure de repartition de la chaleur sur une nouvelle matrice.
  * */
 void lancer_programme() {
     printf("Dans lancer programme");
     init();
-    //~ printf("Etape 0 :\n");
     
     afficher_options();
 
     if (AFF == 1) {
         printf("Temperature initiale :\n");
-        print_quarter_matrice(mat);
+        print_matrice(mat);
     }
     
     for(int i = 0; i < NB_EXE; i++) {
-        //~ printf("Etape %d :\n", i + 1);
-        diffuser_chaleur(current, TAILLE_MATRICE/2);
+        diffuser_chaleur_x(current);
+        diffuser_chaleur_y(current);
     }
     
     if (AFF) {
         printf("Temperature finale :\n");
-        print_quarter_matrice(mat);
+        print_matrice(mat);
     }   
     free(mat);
-    //~ free(current);
 }
 
 
@@ -375,17 +384,11 @@ int main(int argc, char *argv[]) {
 	printf("Programme de simulation de la diffusion de la chaleur\n");
     
 	init_options_par_defaut();
-	if (argc == 1) {
-		//printf("Il n'y a pas eu d'argument.\n");
-	} else {
-		//printf("Il y a eu des arguments.\n");
+	if (argc != 1) {
 		capter_options(argc,argv);
 	}
     
     lancer_selon_options();
-
-    // Liberer allocation memoire
-    //~ free(mat);
 
 	return 0;
 }
