@@ -66,7 +66,7 @@ char* tailles;
 // La matrice est representee par un float**
 typedef float **MAT;
 
-// On definit deux matrices
+// On definit deux matrices : celle de l'etape n et celle de l'etape n-1
 MAT mat, current;
 
 /**
@@ -121,6 +121,9 @@ void init() {
     }
 }
 
+/**
+ * Libere la memoire des deux matrices initialisees.
+ * */
 void free_mat() {
     for (int i =0; i<TAILLE_MATRICE; i++) {
         free((void *) mat[i]);
@@ -172,35 +175,19 @@ void afficher_options() {
     printf("\n");
 }
 
-
-
-
 /**
- * Initialisations par defaut des options du systeme (dans le cas ou les options ne sont pas precisees par l'utilisateur).
- * Fonction normalement inutilisee car les options doivent etre precisees mais utile en phase de developpement.
+ * Retourne la taille et le nombre d'executions sous forme de chaine de caracteres.
  * */
-void init_options_par_defaut() {
-	MES_AFF_CPU = 1; 
-	MES_AFF_REPUSER = 0;
-	AFF = 0; 
-	NB_EXE = 10000; 
-    
-    //~ Pour les etapes suivantes : "024"
-    tailles="024";
-    //~ Etape 0 disponible
-    etapes="0";
-    //~ A l'etape 0, pas de thread
-    threads="1";
+char* get_options() {
+    return "matrice de taille : "+TAILLE_MATRICE", nombre d'executions : "+NB_EXE;
 }
-
-
-
 
 
 /**
  * Sauvegarde des options precisees par l'utilisateur dans les variables prevues a cet effet.
  * */
 void capter_options(int argc, char *argv[]) {
+    // A 0 par defaut, elles seront mises a 1 si presentes dans les options.
 	MES_AFF_CPU = 0;
 	MES_AFF_REPUSER = 0;
 	AFF = 0; 
@@ -241,7 +228,15 @@ void capter_options(int argc, char *argv[]) {
     }
 }
 
-// Propagation de la chaleur selon l'axe x
+
+
+
+/*********************** PROGRAMME DE DIFFUSION DE LA CHALEUR *********************/
+
+
+/**
+ * Propagation de la chaleur selon l'axe x.
+ * */
 void diffuser_chaleur_x(MAT m) {
     for(int i = 0; i < TAILLE_MATRICE; i++) {
         for(int j = 0; j < TAILLE_MATRICE; j++) {
@@ -280,7 +275,7 @@ void diffuser_chaleur_y(MAT m) {
 
 /**
  * Calcule et affiche le temps d'execution du programme
- * NB : les temps sont donnés en secondes. 
+ * NB : les temps sont donnes en secondes. 
  * */
 void calculer_temps_exec() {
     float temps[10];
@@ -299,7 +294,7 @@ void calculer_temps_exec() {
         // *** Debut de l'algorithme ***
         init();
 
-        // On sauvegarde la matrice de départ, pour la prochaine exécution
+        // On sauvegarde la matrice de depart, pour la prochaine execution
         for (int i = 0; i < TAILLE_MATRICE; i++) {
             for(int j = 0; j < TAILLE_MATRICE; j++) {
                 current[i][j] = mat[i][j];
@@ -341,7 +336,9 @@ void calculer_temps_exec() {
 }
 
 
-// Retourne l'heure actuelle à une precision de 6 decimales
+/**
+ * Retourne l'heure actuelle a une precision de 6 decimales.
+ * */
 double get_process_time() {
     struct rusage usage;
     if( 0 == getrusage(RUSAGE_SELF, &usage) ) {
@@ -351,7 +348,9 @@ double get_process_time() {
     return 0;
 }
 
-
+/**
+ * Simule la diffusion de la chaleur en calculant le temps de reponse utilisateur.
+ * */
 void calculer_temps_user() {
     // Tableau contenant les 10 mesures de temps
     double tabTimes[10];    
@@ -417,9 +416,6 @@ void lancer_algo() {
  * Lance la procedure de repartition de la chaleur sur une nouvelle matrice.
  * */
 void lancer_programme() {
-    // init();
-
-
     // Si l'utilisateur a demande le temps de reponse CPU
     if(MES_AFF_CPU) {
         calculer_temps_exec();
@@ -432,7 +428,7 @@ void lancer_programme() {
 
     // Si l'utilisateur a demande l'affichage
     if(AFF) {
-        printf("\n\n\n\n      Probleme de taille... %d\n",n);
+        printf("\n\n      Probleme de taille... %d\n",n);
         
         init();
 
@@ -448,104 +444,48 @@ void lancer_programme() {
         print_quarter_matrice(current);
         free_mat();
     }
-    
-
-
-    // Liberation de l'allocation memoire pour la matrice
-    // free(mat);
 }
 
 
 
 
 /**
- * Lance un nouveau programme pour chaque :
+ * Lance un nouvel algorithme pour chaque taille de matrice.
+ * Initilialise TAILLE_MATRICE pour chaque n.
+ * 
+ * En effet a l'etape 0, seules les tailles de matrices font varier l'algorithme.
+ * 
+ * Lors des etapes a venir, cette fonction lancera un nouveau programme pour chaque :
  * - etape
  * - nombre de thread
  * - taille de matrice
  * 
- * Pour chacune de ces configurations, cette fonction initialise 
+ * Pour chacune de ces configurations, cette fonction initialisera 
  * ETAPES, NB_THREADS et TAILLE_MATRICE.
  * */
 void lancer_selon_options() {
-    
-    /**
-    
-    // Temporaires pour garder les etapes, threads et tailles initiales.
-    //~ char* tempEtapes = etapes;
-    char* tempThreads = threads;
-    char* tempTailles = tailles;
-    
-    //~ printf("etape %s\n",etapes);
-    //~ printf("thread %s\n",threads);
-    //~ printf("tailles %s\n",tailles);
+    while (*tailles++) {
+        n = ((*(tailles-1)) - '0' )+4;
+             
+        TAILLE_MATRICE = (int) powi(2, n);
 
-    // Parcours des etapes
-    while (*etapes++)
-    {
-        
-        printf("Execution de l'etape... %c\n",*(etapes-1));
-        ETAPES = (*(etapes-1));
-        
-        // Parcours des nombres de threads
-        threads = tempThreads;
-        while (*threads++)
-        {
-            printf("   Nombre de threads... %c\n",*(threads-1));
-            NB_THREADS = (*(threads-1));
-            
-            // Parcours des tailles de matrice
-            tailles=tempTailles;
-            while (*tailles++)
-            {
-                n = ((*(tailles-1)) - '0' )+4;
-                printf("      Probleme de taille... %d\n",n);
-                
-                TAILLE_MATRICE = (int) powi(2, n);
-                printf("      Probleme de TAILLE_MATRICE... %d\n",TAILLE_MATRICE);
-                
-                
-                
-                // On a bien initialise ETAPES, NB_THREADS et TAILLE_MATRICE.
-                // On lance le programme pour chacunes des configurations
-                lancer_programme();
-            }
-            printf("\n");
-        }
-        printf("\n");
+        // On a bien initialise ETAPES, NB_THREADS et TAILLE_MATRICE.
+        // On lance le programme pour chacunes des configurations
+        lancer_programme();
     }
-    
-    **/
-    
-            while (*tailles++)
-            {
-                n = ((*(tailles-1)) - '0' )+4;
-                
-                
-                TAILLE_MATRICE = (int) powi(2, n);
-                //printf("      Probleme de TAILLE_MATRICE... %d\n",TAILLE_MATRICE);
-                
-                // On a bien initialise ETAPES, NB_THREADS et TAILLE_MATRICE.
-                // On lance le programme pour chacunes des configurations
-                lancer_programme();
-            }
-
 }
 
 
 /**
  * Programme principal.
  * 
- * Commence par initialiser les options, puis capte les potentielles options donnees par l'utilisateur.
+ * Commence capter les potentielles options donnees par l'utilisateur.
  * 
  * Lance ensuite une fonction qui, elle, lancera le programme suivant toutes les configurations.
- * 
- * Libere la memoire a la fin de l'execution du programme.
  * */
 int main(int argc, char *argv[]) {
 	printf("Programme de simulation de la diffusion de la chaleur\n");
-    
-	// init_options_par_defaut();
+
 	if (argc != 1) {
 		capter_options(argc,argv);
 	}
