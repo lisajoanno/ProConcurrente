@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h> // pour malloc
 #include <unistd.h> // pour getopt
 #include <getopt.h> // pour getopt
@@ -179,7 +180,18 @@ void afficher_options() {
  * Retourne la taille et le nombre d'executions sous forme de chaine de caracteres.
  * */
 char* get_options() {
-    return "matrice de taille : "+TAILLE_MATRICE", nombre d'executions : "+NB_EXE;
+    char* t = "";
+    char* i = "";
+    char*res = "";
+    sprintf(t, "%d", TAILLE_MATRICE);
+    sprintf(i, "%d", NB_EXE);
+
+    strcpy(res, "matrice de taille : ");
+    strcpy(res, t);
+    strcpy(res, ", nombre d'executions : ");
+    strcpy(res, i);
+
+    return res;
 }
 
 
