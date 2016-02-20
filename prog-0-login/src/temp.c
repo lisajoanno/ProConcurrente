@@ -274,7 +274,7 @@ void calculer_temps_exec() {
     float temps[10];
     int taille_table = sizeof(temps)/sizeof(float);
     // Les min et max, que l'on determinera plus loin
-    float min = 0.0;
+    float min = 1.0;
     float max = 0.0;
     // Pour calculer la moyenne
     float moy = 0.0;
@@ -320,10 +320,12 @@ void calculer_temps_exec() {
             moy += temps[i];
         }
     }
+
     // On fait la moyenne des 8 resultats d'execution
     moy /= (taille_table - 2);
     // On affiche le temps d'execution final
     printf("\nTemps d'execution du programme : %f secondes\n\n", moy);
+    exit(0);
 
 }
 
