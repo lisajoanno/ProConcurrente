@@ -278,7 +278,7 @@ void lancer_programme() {
 
     if (AFF == 1) {
         printf("Temperature initiale :\n");
-        print_matrice(mat);
+        print_quarter_matrice(mat);
     }
     
     for(int i = 0; i < NB_EXE; i++) {
@@ -288,7 +288,7 @@ void lancer_programme() {
     
     if (AFF) {
         printf("Temperature finale :\n");
-        print_matrice(mat);
+        print_quarter_matrice(mat);
     }   
     free(mat);
 }
