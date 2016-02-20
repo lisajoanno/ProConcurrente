@@ -2,6 +2,7 @@
 #include <stdlib.h> // pour malloc
 #include <unistd.h> // pour getopt
 #include <getopt.h> // pour getopt
+#include <time.h> // pour time et la constante CLOCKS_PER_SEC
 
 /**
  * 
@@ -265,31 +266,96 @@ void diffuser_chaleur_y(MAT m) {
     }
 }
 
+/**
+ * Calcule et affiche le temps d'execution du programme
+ * NB : les temps sont donnés en secondes. 
+ * */
+void calculer_temps_exec() {
+    float temps[10];
+    int taille_table = sizeof(temps)/sizeof(float);
+    // Les min et max, que l'on determinera plus loin
+    float min = 0.0;
+    float max = 0.0;
+    // Pour calculer la moyenne
+    float moy = 0.0;
+
+    clock_t temps_debut, temps_fin;
+    // On lance les 10 executions
+    for (int i = 0; i < 10; i++) {
+        temps_debut = clock();
+
+        // *** Debut de l'algorithme ***
+
+        // On sauvegarde la matrice de départ, pour la prochaine exécution
+        for (int i = 0; i < TAILLE_MATRICE; i++) {
+            for(int j = 0; j < TAILLE_MATRICE; j++) {
+                current[i][j] = mat[i][j];
+            }
+        }
+
+        for(int i = 0; i < NB_EXE; i++) {
+            diffuser_chaleur_x(current);
+            diffuser_chaleur_y(current);
+        }
+
+        // *** Fin de l'algoritme ***
+
+        temps_fin = clock();
+        // On stock le temps d'execution dans le tableau
+        temps[i] = (float)(temps_fin - temps_debut)/CLOCKS_PER_SEC;
+
+    }
+    // On determine le min et le max dans le tableau
+    for (int i = 0; i < taille_table; i++) {
+        if(max < temps[i]) {
+            max = temps[i];
+        }
+        if(min > temps[i]) {
+            min = temps[i];
+        }
+    }
+    // On fait la moyenne des temps restants
+    for (int i = 0; i < taille_table; i++) {
+        if(temps[i] != min && temps[i] != max) {
+            moy += temps[i];
+        }
+    }
+    // On fait la moyenne des 8 resultats d'execution
+    moy /= (taille_table - 2);
+    // On affiche le temps d'execution final
+    printf("\nTemps d'execution du programme : %f secondes\n\n", moy);
+
+}
 
 
 /**
  * Lance la procedure de repartition de la chaleur sur une nouvelle matrice.
  * */
 void lancer_programme() {
-    printf("Dans lancer programme");
     init();
-    
-    afficher_options();
 
-    if (AFF == 1) {
-        printf("Temperature initiale :\n");
-        print_quarter_matrice(mat);
+    if(MES_AFF_CPU == 1) {
+        calculer_temps_exec();
+    } 
+    else {
+
+        if(AFF == 1) {
+            printf("Temperature initiale :\n");
+            print_quarter_matrice(mat);
+        }
+
+        for(int i = 0; i < NB_EXE; i++) {
+            diffuser_chaleur_x(current);
+            diffuser_chaleur_y(current);
+        }
+
+        if(AFF == 1) {
+            printf("\nTemperature finale :\n");
+            print_quarter_matrice(mat);
+        }
     }
-    
-    for(int i = 0; i < NB_EXE; i++) {
-        diffuser_chaleur_x(current);
-        diffuser_chaleur_y(current);
-    }
-    
-    if (AFF == 1) {
-        printf("Temperature finale :\n");
-        print_quarter_matrice(mat);
-    }   
+
+    // Liberation de l'allocation memoire pour la matrice
     free(mat);
 }
 
@@ -358,10 +424,10 @@ void lancer_selon_options() {
             while (*tailles++)
             {
                 n = ((*(tailles-1)) - '0' )+4;
-                printf("      Probleme de taille... %d\n",n);
+                //printf("      Probleme de taille... %d\n",n);
                 
                 TAILLE_MATRICE = (int) powi(2, n);
-                printf("      Probleme de TAILLE_MATRICE... %d\n",TAILLE_MATRICE);
+                //printf("      Probleme de TAILLE_MATRICE... %d\n",TAILLE_MATRICE);
                 
                 // On a bien initialise ETAPES, NB_THREADS et TAILLE_MATRICE.
                 // On lance le programme pour chacunes des configurations
