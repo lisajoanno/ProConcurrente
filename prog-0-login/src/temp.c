@@ -84,7 +84,7 @@ int powi(int number, int exponent)
  * Alloue l'espace memoire necessaire a la matrice.
  * Initialise toutes les cases a 0 sauf la plaque interne.
  * */
-MAT init() {
+void init() {
     // Alloue la place pour la matrice
 	mat = malloc(sizeof(float) * TAILLE_MATRICE * TAILLE_MATRICE);
     // Initialisation de la matrice a 0 partout
@@ -119,8 +119,13 @@ MAT init() {
             current[i][j] = mat[i][j];
         }
     }
+}
 
-	return mat;
+void free_mat() {
+    for (int i =0; i<TAILLE_MATRICE; i++) {
+        free((void *) mat[i]);
+    }
+    free(mat);
 }
 
 /**
@@ -404,7 +409,7 @@ void lancer_algo() {
         diffuser_chaleur_x(current);
         diffuser_chaleur_y(current);
     }
-    free(mat);
+    free_mat();
 }
 
 
@@ -441,7 +446,7 @@ void lancer_programme() {
 
         printf("\nTemperature finale :\n");
         print_quarter_matrice(current);
-        free(mat);
+        free_mat();
     }
     
 
