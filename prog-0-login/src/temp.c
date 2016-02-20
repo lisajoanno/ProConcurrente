@@ -130,6 +130,10 @@ void free_mat() {
         free((void *) mat[i]);
     }
     free(mat);
+    for (int i =0; i<TAILLE_MATRICE; i++) {
+        free((void *) current[i]);
+    }
+    free(current);
 }
 
 /**
@@ -278,7 +282,7 @@ void diffuser_chaleur_y(MAT m) {
  * Calcule et affiche le temps d'execution du programme
  * NB : les temps sont donnes en secondes. 
  * */
-void calculer_temps_exec() {
+void calculer_temps_cpu() {
     float temps[10];
     int taille_table = sizeof(temps)/sizeof(float);
     // Les min et max, que l'on determinera plus loin
@@ -420,7 +424,7 @@ void lancer_algo() {
 void lancer_programme() {
     // Si l'utilisateur a demande le temps de reponse CPU
     if(MES_AFF_CPU) {
-        calculer_temps_exec();
+        calculer_temps_cpu();
     } 
 
     // Si l'utilisateur a demande le temps de reponse utilisateur
