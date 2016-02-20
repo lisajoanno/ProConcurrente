@@ -3,6 +3,8 @@
 #include <unistd.h> // pour getopt
 #include <getopt.h> // pour getopt
 #include <time.h> // pour time et la constante CLOCKS_PER_SEC
+#include <sys/time.h> // pour l'heure
+#include <sys/resource.h> // pour l'heure
 
 /**
  * 
@@ -227,6 +229,11 @@ void capter_options(int argc, char *argv[]) {
                 exit(EXIT_FAILURE);
         }
     }
+
+    // Suppression de toute trace d'execution si -m ou -M
+    if(MES_AFF_REPUSER || MES_AFF_CPU) {
+        AFF = 0;
+    }
 }
 
 // Propagation de la chaleur selon l'axe x
@@ -285,6 +292,7 @@ void calculer_temps_exec() {
         temps_debut = clock();
 
         // *** Debut de l'algorithme ***
+        init();
 
         // On sauvegarde la matrice de départ, pour la prochaine exécution
         for (int i = 0; i < TAILLE_MATRICE; i++) {
@@ -325,8 +333,78 @@ void calculer_temps_exec() {
     moy /= (taille_table - 2);
     // On affiche le temps d'execution final
     printf("\nTemps d'execution du programme : %f secondes\n\n", moy);
-    exit(0);
+}
 
+
+// Retourne l'heure actuelle à une precision de 6 decimales
+double get_process_time() {
+    struct rusage usage;
+    if( 0 == getrusage(RUSAGE_SELF, &usage) ) {
+        return (double)(usage.ru_utime.tv_sec + usage.ru_stime.tv_sec) +
+               (double)(usage.ru_utime.tv_usec + usage.ru_stime.tv_usec) / 1.0e6;
+    }
+    return 0;
+}
+
+
+void calculer_temps_user() {
+    // Tableau contenant les 10 mesures de temps
+    double tabTimes[10];    
+    // Temps au debut de l'execution, temps a la fin
+    double t_begin, t_end;
+    // 10 executions du programme
+    for (int i=0; i<10; i++) {
+        t_begin = get_process_time();
+
+        init();
+
+        for (int i = 0; i < TAILLE_MATRICE; i++) {
+            for(int j = 0; j < TAILLE_MATRICE; j++) {
+                current[i][j] = mat[i][j];
+            }
+        }
+        for(int i = 0; i < NB_EXE; i++) {
+            diffuser_chaleur_x(current);
+            diffuser_chaleur_y(current);
+        }
+
+        t_end = get_process_time();
+
+        tabTimes[i] = (t_end - t_begin);
+    }
+
+    double max, min, moy;
+    // On determine le min et le max dans le tableau
+    for (int i = 0; i < 10; i++) {
+        if(max < tabTimes[i]) {
+            max = tabTimes[i];
+        }
+        if(min > tabTimes[i]) {
+            min = tabTimes[i];
+        }
+    }
+    // On fait la moyenne des temps restants
+    for (int i = 0; i < 10; i++) {
+        if(tabTimes[i] != min && tabTimes[i] != max) {
+            moy += tabTimes[i];
+        }
+    }
+
+    // On fait la moyenne des 8 resultats d'execution
+    moy /= (10 - 2);
+    // On affiche le temps d'execution final
+    printf("\nTemps de reponse utilisateur du programme : %f secondes\n\n", moy);
+
+}
+
+// Factorisation simple ?
+void lancer_algo() {
+    init();
+    for(int i = 0; i < NB_EXE; i++) {
+        diffuser_chaleur_x(current);
+        diffuser_chaleur_y(current);
+    }
+    free(mat);
 }
 
 
@@ -334,31 +412,42 @@ void calculer_temps_exec() {
  * Lance la procedure de repartition de la chaleur sur une nouvelle matrice.
  * */
 void lancer_programme() {
-    init();
+    // init();
 
-    if(MES_AFF_CPU == 1) {
+
+    // Si l'utilisateur a demande le temps de reponse CPU
+    if(MES_AFF_CPU) {
         calculer_temps_exec();
     } 
-    else {
 
-        if(AFF == 1) {
-            printf("Temperature initiale :\n");
-            print_quarter_matrice(mat);
-        }
+    // Si l'utilisateur a demande le temps de reponse utilisateur
+    if(MES_AFF_REPUSER) {
+        calculer_temps_user();
+    }
 
+    // Si l'utilisateur a demande l'affichage
+    if(AFF) {
+        printf("\n\n\n\n      Probleme de taille... %d\n",n);
+        
+        init();
+
+        printf("Temperature initiale :\n");
+        print_quarter_matrice(current);
+        
         for(int i = 0; i < NB_EXE; i++) {
             diffuser_chaleur_x(current);
             diffuser_chaleur_y(current);
         }
 
-        if(AFF == 1) {
-            printf("\nTemperature finale :\n");
-            print_quarter_matrice(mat);
-        }
+        printf("\nTemperature finale :\n");
+        print_quarter_matrice(current);
+        free(mat);
     }
+    
+
 
     // Liberation de l'allocation memoire pour la matrice
-    free(mat);
+    // free(mat);
 }
 
 
@@ -426,7 +515,7 @@ void lancer_selon_options() {
             while (*tailles++)
             {
                 n = ((*(tailles-1)) - '0' )+4;
-                //printf("      Probleme de taille... %d\n",n);
+                
                 
                 TAILLE_MATRICE = (int) powi(2, n);
                 //printf("      Probleme de TAILLE_MATRICE... %d\n",TAILLE_MATRICE);
@@ -451,7 +540,7 @@ void lancer_selon_options() {
 int main(int argc, char *argv[]) {
 	printf("Programme de simulation de la diffusion de la chaleur\n");
     
-	init_options_par_defaut();
+	// init_options_par_defaut();
 	if (argc != 1) {
 		capter_options(argc,argv);
 	}
