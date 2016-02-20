@@ -179,19 +179,8 @@ void afficher_options() {
 /**
  * Retourne la taille et le nombre d'executions sous forme de chaine de caracteres.
  * */
-char* get_options() {
-    char* t = "";
-    char* i = "";
-    char*res = "";
-    sprintf(t, "%d", TAILLE_MATRICE);
-    sprintf(i, "%d", NB_EXE);
-
-    strcpy(res, "matrice de taille : ");
-    strcpy(res, t);
-    strcpy(res, ", nombre d'executions : ");
-    strcpy(res, i);
-
-    return res;
+void afficher_options_synthetiques() {
+    printf("Pour une matrice de taille : %d, nombre d'executions : %d\n",TAILLE_MATRICE,NB_EXE);
 }
 
 
@@ -344,7 +333,8 @@ void calculer_temps_exec() {
     // On fait la moyenne des 8 resultats d'execution
     moy /= (taille_table - 2);
     // On affiche le temps d'execution final
-    printf("\nTemps d'execution du programme : %f secondes\n\n", moy);
+    printf("Temps d'execution (consommation du CPU) du programme : %f secondes\n", moy);
+    afficher_options_synthetiques();
 }
 
 
@@ -374,11 +364,11 @@ void calculer_temps_user() {
 
         init();
 
-        for (int i = 0; i < TAILLE_MATRICE; i++) {
-            for(int j = 0; j < TAILLE_MATRICE; j++) {
-                current[i][j] = mat[i][j];
-            }
-        }
+        // for (int i = 0; i < TAILLE_MATRICE; i++) {
+        //     for(int j = 0; j < TAILLE_MATRICE; j++) {
+        //         current[i][j] = mat[i][j];
+        //     }
+        // }
         for(int i = 0; i < NB_EXE; i++) {
             diffuser_chaleur_x(current);
             diffuser_chaleur_y(current);
@@ -409,8 +399,8 @@ void calculer_temps_user() {
     // On fait la moyenne des 8 resultats d'execution
     moy /= (10 - 2);
     // On affiche le temps d'execution final
-    printf("\nTemps de reponse utilisateur du programme : %f secondes\n\n", moy);
-
+    printf("Temps d'execution (reponse utilisateur) du programme : %f secondes\n", moy);
+    afficher_options_synthetiques();
 }
 
 // Factorisation simple ?
@@ -496,8 +486,6 @@ void lancer_selon_options() {
  * Lance ensuite une fonction qui, elle, lancera le programme suivant toutes les configurations.
  * */
 int main(int argc, char *argv[]) {
-	printf("Programme de simulation de la diffusion de la chaleur\n");
-
 	if (argc != 1) {
 		capter_options(argc,argv);
 	}
