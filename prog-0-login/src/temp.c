@@ -21,7 +21,7 @@
 // Temperatures (en degres) des cases non chauffees a l'etat initial
 int TEMP_FROID = 0;
 // Temperature (en degres) des cases chauffees a l'etait initial
-int TEMP_CHAUD = 36;
+int TEMP_CHAUD = 256;
 // Taille de la matrice courante entree par l'utilisateur (taille = n+4)
 int n;
 // Taille de la matrice courante
@@ -286,7 +286,7 @@ void lancer_programme() {
         diffuser_chaleur_y(current);
     }
     
-    if (AFF) {
+    if (AFF == 1) {
         printf("Temperature finale :\n");
         print_quarter_matrice(mat);
     }   
