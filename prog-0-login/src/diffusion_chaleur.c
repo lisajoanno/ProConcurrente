@@ -233,7 +233,7 @@ void diffuser_chaleur_x() {
         for(int j = 0; j < TAILLE_MATRICE; j++) {
             mat_courante[i][j] = ((1/H) * mat_prec[i][j - 1]) + ((4/H) * mat_prec[i][j]) + ((1/H) * mat_prec[i][j + 1]);
         }
-        // Copie des valeurs de la nouvelle matrice dans mat.
+        // Copie des valeurs de la nouvelle matrice dans mat_prec.
         for (int i = 0; i < TAILLE_MATRICE; i++) {
             for(int j = 0; j < TAILLE_MATRICE; j++) {
                 mat_prec[i][j] = mat_courante[i][j];
