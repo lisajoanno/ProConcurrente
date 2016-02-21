@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c99
 EXEC_NAME = main
-OBJ_FILES = temp.o
+OBJ_FILES = diffusion_chaleur.o
 
 # Repertoires
 OBJ_DIR = obj
