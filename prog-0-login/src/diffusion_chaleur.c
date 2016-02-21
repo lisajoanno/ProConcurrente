@@ -9,7 +9,7 @@
 /**
  * 
  * Projet de programmation concurrente : diffusion de la chaleur
- * SI4 2015/2016
+ * SI4 2015/2016 - Info2
  * 
  * Auteurs : Arnaud Garnier & Lisa Joanno
  * 
@@ -62,7 +62,7 @@ char* tailles;
 
 
 
-/*********** DECLARATION & INITIALISATION DE LA MATRICE ****************/
+/**************** DECLARATION & INITIALISATION DE LA MATRICE ****************/
 
 // La matrice est representee par un float**
 typedef float **MAT;
@@ -87,10 +87,10 @@ int powi(int number, int exponent)
  * Copie mat_prec dans mat_courante.
  * */
 void init() {
-    // Alloue la place pour la matrice
+    // Alloue la place pour la matrice.
 	mat_prec = malloc(sizeof(float) * TAILLE_MATRICE * TAILLE_MATRICE);
     mat_courante = malloc(sizeof(float) * TAILLE_MATRICE * TAILLE_MATRICE);
-    // Initialisation de la matrice a 0 partout
+    // Initialisation de la matrice a 0.
     for (int i =0; i<TAILLE_MATRICE; i++) {
         for (int j=0; j<TAILLE_MATRICE; j++) {
             mat_prec[i] = (float *) malloc(sizeof(float) * TAILLE_MATRICE);
@@ -100,7 +100,7 @@ void init() {
             mat_courante[i][j] = 0;
         }
     }
-    // Initialisation de la zone chauffee initialement
+    // Initialisation de la zone chauffee initialement.
     int idMin =  powi(2,n-1) - powi(2,n-4);
     int idMax = powi(2,n-1) + powi(2,n-4);
     TAILLE_ZONE_INT = idMax - idMin;
@@ -109,7 +109,7 @@ void init() {
             mat_prec[i][j] = TEMP_CHAUD;
         }
     }
-    // Copie des deux matrices
+    // Copie des deux matrices.
     for (int i = 0; i < TAILLE_MATRICE; i++) {
         for(int j = 0; j < TAILLE_MATRICE; j++) {
             mat_courante[i][j] = mat_prec[i][j];
@@ -166,23 +166,6 @@ double get_process_time() {
 }
 
 
-/*********************** RECUPERATION DES OPTIONS *********************/
-
-/**
- * Affiche les options courantes du programme.
- * */
-void afficher_options() {
-	printf("\nOptions : \n");
-	printf("TAILLE_MATRICE = %d\n",TAILLE_MATRICE); 
-	printf("MES_AFF_CPU = %d\n", MES_AFF_CPU); 
-	printf("MES_AFF_REPUSER = %d\n", MES_AFF_REPUSER); 
-	printf("AFF = %d\n", AFF); 
-	printf("NB_EXE = %d\n", NB_EXE); 
-	printf("ETAPES = %d\n", ETAPES); 
-	printf("NB_THREADS = %d\n",NB_THREADS); 
-    printf("\n");
-}
-
 /**
  * Affiche le nombre d'executions et la taille de la matrice.
  * */
@@ -201,7 +184,7 @@ void capter_options(int argc, char *argv[]) {
 	AFF = 0; 
 
 	int option = 0;
-    // Specification des options acceptees : -s, -r, -t, -i, -m, -M et -a
+    // Specification des options acceptees : -s, -r, -t, -i, -m, -M et -a :
     while ((option = getopt(argc, argv,"i:e:s:t:mMa")) != -1) {
         switch (option) {
             case 'i' : 
@@ -225,12 +208,12 @@ void capter_options(int argc, char *argv[]) {
             case 'a' : 
             	AFF = 1;
                 break;
-            default: afficher_options();
+            default:
                 exit(EXIT_FAILURE);
         }
     }
 
-    // Suppression de toute trace d'execution si -m ou -M
+    // Suppression de toute trace d'execution si -m ou -M :
     if(MES_AFF_REPUSER || MES_AFF_CPU) {
         AFF = 0;
     }
@@ -239,7 +222,7 @@ void capter_options(int argc, char *argv[]) {
 
 
 
-/*********************** PROGRAMME DE DIFFUSION DE LA CHALEUR *********************/
+/*********************** PROGRAMME DE DIFFUSION DE LA CHALEUR ***********************/
 
 
 /**
@@ -250,7 +233,7 @@ void diffuser_chaleur_x() {
         for(int j = 0; j < TAILLE_MATRICE; j++) {
             mat_courante[i][j] = ((1/H) * mat_prec[i][j - 1]) + ((4/H) * mat_prec[i][j]) + ((1/H) * mat_prec[i][j + 1]);
         }
-        // Copie des valeurs de la nouvelle matrice dans mat
+        // Copie des valeurs de la nouvelle matrice dans mat.
         for (int i = 0; i < TAILLE_MATRICE; i++) {
             for(int j = 0; j < TAILLE_MATRICE; j++) {
                 mat_prec[i][j] = mat_courante[i][j];
@@ -273,7 +256,7 @@ void diffuser_chaleur_y() {
                 mat_courante[i][j] = ((1/H) * mat_prec[i - 1][j]) + ((4/H) * mat_prec[i][j]) + ((1/H) * mat_prec[i + 1][j]);
             }
         }
-        // Copie des valeurs de la nouvelle matrice dans mat_prec
+        // Copie des valeurs de la nouvelle matrice dans mat_prec.
         for (int i = 0; i < TAILLE_MATRICE; i++) {
             for(int j = 0; j < TAILLE_MATRICE; j++) {
                 mat_prec[i][j] = mat_courante[i][j];
@@ -289,21 +272,21 @@ void diffuser_chaleur_y() {
 void calculer_temps_cpu() {
     float temps[10];
     int taille_table = sizeof(temps)/sizeof(float);
-    // Les min et max, que l'on determinera plus loin
+    // Les min et max, que l'on determinera plus loin.
     float min = 1.0;
     float max = 0.0;
-    // Pour calculer la moyenne
+    // Pour calculer la moyenne.
     float moy = 0.0;
 
     clock_t temps_debut, temps_fin;
-    // On lance les 10 executions
+    // On lance les 10 executions.
     for (int i = 0; i < 10; i++) {
         temps_debut = clock();
 
         // *** Debut de l'algorithme ***
         init();
 
-        // On sauvegarde la matrice de depart, pour la prochaine execution
+        // On sauvegarde la matrice de depart, pour la prochaine execution.
         for (int i = 0; i < TAILLE_MATRICE; i++) {
             for(int j = 0; j < TAILLE_MATRICE; j++) {
                 mat_courante[i][j] = mat_prec[i][j];
@@ -318,11 +301,11 @@ void calculer_temps_cpu() {
         // *** Fin de l'algoritme ***
 
         temps_fin = clock();
-        // On stock le temps d'execution dans le tableau
+        // On stocke le temps d'execution dans le tableau.
         temps[i] = (float)(temps_fin - temps_debut)/CLOCKS_PER_SEC;
 
     }
-    // On determine le min et le max dans le tableau
+    // On determine le min et le max dans le tableau.
     for (int i = 0; i < taille_table; i++) {
         if(max < temps[i]) {
             max = temps[i];
@@ -331,17 +314,17 @@ void calculer_temps_cpu() {
             min = temps[i];
         }
     }
-    // On fait la moyenne des temps restants
+    // On fait la moyenne des temps restants.
     for (int i = 0; i < taille_table; i++) {
         if(temps[i] != min && temps[i] != max) {
             moy += temps[i];
         }
     }
 
-    // On fait la moyenne des 8 resultats d'execution
+    // On fait la moyenne des 8 resultats d'execution.
     moy /= (taille_table - 2);
-    // On affiche le temps d'execution final
-    printf("Temps d'execution (consommation du CPU) du programme : %f secondes\n", moy);
+    // On affiche le temps d'execution final.
+    printf("Temps CPU consomme par le programme : %f secondes\n", moy);
     afficher_options_synthetiques();
 }
 
@@ -349,11 +332,11 @@ void calculer_temps_cpu() {
  * Simule la diffusion de la chaleur en calculant le temps de reponse utilisateur.
  * */
 void calculer_temps_user() {
-    // Tableau contenant les 10 mesures de temps
+    // Tableau contenant les 10 mesures de temps.
     double tabTimes[10];    
-    // Temps au debut de l'execution, temps a la fin
+    // Temps au debut de l'execution, temps a la fin.
     double t_begin, t_end;
-    // 10 executions du programme
+    // 10 executions du programme :
     for (int i=0; i<10; i++) {
         t_begin = get_process_time();
 
@@ -371,7 +354,7 @@ void calculer_temps_user() {
     }
 
     double max, min, moy;
-    // On determine le min et le max dans le tableau
+    // On determine le min et le max dans le tableau.
     for (int i = 0; i < 10; i++) {
         if(max < tabTimes[i]) {
             max = tabTimes[i];
@@ -380,16 +363,16 @@ void calculer_temps_user() {
             min = tabTimes[i];
         }
     }
-    // On fait la moyenne des temps restants
+    // On fait la moyenne des temps restants.
     for (int i = 0; i < 10; i++) {
         if(tabTimes[i] != min && tabTimes[i] != max) {
             moy += tabTimes[i];
         }
     }
 
-    // On fait la moyenne des 8 resultats d'execution
-    moy /= (10 - 2);
-    // On affiche le temps d'execution final
+    // On fait la moyenne des 8 resultats d'execution.
+    moy /= 8;
+    // On affiche le temps d'execution final.
     printf("Temps d'execution (reponse utilisateur) du programme : %f secondes\n", moy);
     afficher_options_synthetiques();
 }
@@ -398,17 +381,17 @@ void calculer_temps_user() {
  * Lance la procedure de repartition de la chaleur sur une nouvelle matrice.
  * */
 void lancer_programme() {
-    // Si l'utilisateur a demande le temps de reponse CPU
+    // Si l'utilisateur a demande le temps de reponse CPU :
     if(MES_AFF_CPU) {
         calculer_temps_cpu();
     } 
 
-    // Si l'utilisateur a demande le temps de reponse utilisateur
+    // Si l'utilisateur a demande le temps de reponse utilisateur :
     if(MES_AFF_REPUSER) {
         calculer_temps_user();
     }
 
-    // Si l'utilisateur a demande l'affichage
+    // Si l'utilisateur a demande l'affichage :
     if(AFF) {
         printf("\n\n      Probleme de taille... %d\n",n);
         
@@ -439,7 +422,7 @@ void lancer_programme() {
  * Lors des etapes a venir, cette fonction lancera un nouveau programme pour chaque :
  * - etape
  * - nombre de thread
- * - taille de matrice
+ * - taille de matrice.
  * 
  * Pour chacune de ces configurations, cette fonction initialisera 
  * ETAPES, NB_THREADS et TAILLE_MATRICE.
@@ -451,7 +434,7 @@ void lancer_selon_options() {
         TAILLE_MATRICE = (int) powi(2, n);
 
         // On a bien initialise ETAPES, NB_THREADS et TAILLE_MATRICE.
-        // On lance le programme pour chacunes des configurations
+        // On lance le programme pour chacunes des configurations :
         lancer_programme();
     }
 }
@@ -460,9 +443,10 @@ void lancer_selon_options() {
 /**
  * Programme principal.
  * 
- * Commence capter les potentielles options donnees par l'utilisateur.
+ * Commence capter les eventuelles options, donnees par l'utilisateur.
  * 
- * Lance ensuite une fonction qui, elle, lancera le programme suivant toutes les configurations.
+ * Execute ensuite une fonction qui lancera le programme en suivant 
+ * toutes les configurations donnees par les options.
  * */
 int main(int argc, char *argv[]) {
 	if (argc != 1) {
