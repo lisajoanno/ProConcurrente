@@ -16,6 +16,7 @@
  * Le programme suivant permet de visualiser le phenomene de diffusion de la chaleur sur une
  * plaque a deux dimensions.
  * 
+ * Etape 0 rendue le 21/02/2016.
  * **/
 
 
