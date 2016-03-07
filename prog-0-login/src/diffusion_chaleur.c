@@ -266,6 +266,16 @@ void diffuser_chaleur_y() {
     }
 }
 
+
+
+void lancer_algo() {
+    for(int i = 0; i < NB_EXE; i++) {
+        diffuser_chaleur_x();
+        diffuser_chaleur_y();
+    }    
+}
+
+
 /**
  * Calcule et affiche le temps d'execution du programme
  * NB : les temps sont donnes en secondes. 
@@ -294,10 +304,7 @@ void calculer_temps_cpu() {
             }
         }
 
-        for(int i = 0; i < NB_EXE; i++) {
-            diffuser_chaleur_x();
-            diffuser_chaleur_y();
-        }
+        lancer_algo();
 
         // *** Fin de l'algoritme ***
 
@@ -343,11 +350,7 @@ void calculer_temps_user() {
 
         init();
 
-
-        for(int i = 0; i < NB_EXE; i++) {
-            diffuser_chaleur_x();
-            diffuser_chaleur_y();
-        }
+        lancer_algo();
 
         t_end = get_process_time();
 
@@ -370,12 +373,26 @@ void calculer_temps_user() {
             moy += tabTimes[i];
         }
     }
-
+    
     // On fait la moyenne des 8 resultats d'execution.
     moy /= 8;
     // On affiche le temps d'execution final.
     printf("Temps d'execution (reponse utilisateur) du programme : %f secondes\n", moy);
     afficher_options_synthetiques();
+}
+
+void lancer_algo_affichage() {
+    printf("\n\n      Probleme de taille... %d\n",n);
+    init();
+
+    printf("Temperature initiale :\n");
+    print_quarter_matrice(mat_courante);
+        
+    lancer_algo();
+
+    printf("\nTemperature finale :\n");
+    print_quarter_matrice(mat_courante);
+    free_mat();    
 }
 
 /**
@@ -394,25 +411,9 @@ void lancer_programme() {
 
     // Si l'utilisateur a demande l'affichage :
     if(AFF) {
-        printf("\n\n      Probleme de taille... %d\n",n);
-        
-        init();
-
-        printf("Temperature initiale :\n");
-        print_quarter_matrice(mat_courante);
-        
-        for(int i = 0; i < NB_EXE; i++) {
-            diffuser_chaleur_x(mat_courante);
-            diffuser_chaleur_y(mat_courante);
-        }
-
-        printf("\nTemperature finale :\n");
-        print_quarter_matrice(mat_courante);
-        free_mat();
+        lancer_algo_affichage();
     }
 }
-
-
 
 /**
  * Lance un nouvel algorithme pour chaque taille de matrice.
@@ -439,7 +440,6 @@ void lancer_selon_options() {
         lancer_programme();
     }
 }
-
 
 /**
  * Programme principal.
