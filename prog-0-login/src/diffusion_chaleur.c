@@ -266,12 +266,24 @@ void diffuser_chaleur_y() {
     }
 }
 
-
+void chauffer_zone_centrale() {
+    int idMin =  powi(2,n-1) - powi(2,n-4);
+    int idMax = powi(2,n-1) + powi(2,n-4);
+    TAILLE_ZONE_INT = idMax - idMin;
+    for (int i =  idMin ; i < idMax  ; i++) {
+        for (int j =  idMin  ; j <  idMax ; j++) {
+            mat_courante[i][j] = TEMP_CHAUD;
+        }
+    }    
+}
 
 void lancer_algo() {
     for(int i = 0; i < NB_EXE; i++) {
         diffuser_chaleur_x();
         diffuser_chaleur_y();
+
+        // printf("On rechauffe\n");
+        chauffer_zone_centrale();
     }    
 }
 
@@ -373,7 +385,7 @@ void calculer_temps_user() {
             moy += tabTimes[i];
         }
     }
-    
+
     // On fait la moyenne des 8 resultats d'execution.
     moy /= 8;
     // On affiche le temps d'execution final.
