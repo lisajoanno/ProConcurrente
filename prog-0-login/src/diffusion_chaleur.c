@@ -124,10 +124,10 @@ void init() {
 void free_mat() {
     for (int i =0; i<TAILLE_MATRICE; i++) {
         free((void *) mat_prec[i]);
-        free((void *) mat_courante[i]);
+        // free((void *) mat_courante[i]);
     }
     free(mat_prec);
-    free(mat_courante);
+    // free(mat_courante);
 }
 
 /**
@@ -232,14 +232,8 @@ void capter_options(int argc, char *argv[]) {
 void diffuser_chaleur_x() {
     for(int i = 0; i < TAILLE_MATRICE; i++) {
         for(int j = 0; j < TAILLE_MATRICE; j++) {
-            mat_courante[i][j] = ((1/H) * mat_prec[i][j - 1]) + ((4/H) * mat_prec[i][j]) + ((1/H) * mat_prec[i][j + 1]);
-        }
-        // Copie des valeurs de la nouvelle matrice dans mat_prec.
-        for (int i = 0; i < TAILLE_MATRICE; i++) {
-            for(int j = 0; j < TAILLE_MATRICE; j++) {
-                mat_prec[i][j] = mat_courante[i][j];
-            }
-        }
+            mat_courante[i][j] = ((mat_prec[i][j - 1]) + (4 * mat_prec[i][j]) + (mat_prec[i][j + 1]))/H;
+        }   
     }
 }
 
@@ -250,17 +244,11 @@ void diffuser_chaleur_y() {
     for(int j = 0; j < TAILLE_MATRICE; j++) {
         for(int i = 0; i < TAILLE_MATRICE; i++) {
             if (i == 0) {
-                mat_courante[i][j] = ((4/H) * mat_prec[i][j]) + ((1/H) * mat_prec[i + 1][j]);
+                mat_courante[i][j] = ((4 * mat_prec[i][j]) + (mat_prec[i + 1][j]))/H;
             } else if (i == TAILLE_MATRICE - 1) {
-                mat_courante[i][j] = ((1/H) * mat_prec[i - 1][j]) + ((4/H) * mat_prec[i][j]);
+                mat_courante[i][j] = ((mat_prec[i - 1][j]) + (4 * mat_prec[i][j]))/H;
             } else {
-                mat_courante[i][j] = ((1/H) * mat_prec[i - 1][j]) + ((4/H) * mat_prec[i][j]) + ((1/H) * mat_prec[i + 1][j]);
-            }
-        }
-        // Copie des valeurs de la nouvelle matrice dans mat_prec.
-        for (int i = 0; i < TAILLE_MATRICE; i++) {
-            for(int j = 0; j < TAILLE_MATRICE; j++) {
-                mat_prec[i][j] = mat_courante[i][j];
+                mat_courante[i][j] = ((mat_prec[i - 1][j]) + (4 * mat_prec[i][j]) + (mat_prec[i + 1][j]))/H;
             }
         }
     }
@@ -277,10 +265,18 @@ void chauffer_zone_centrale() {
     }    
 }
 
+void swap()
+{
+    MAT* temp = mat_courante;
+    mat_prec = temp;
+}
+
 void lancer_algo() {
     for(int i = 0; i < NB_EXE; i++) {
         diffuser_chaleur_x();
+        swap();
         diffuser_chaleur_y();
+        swap();
 
         // printf("On rechauffe\n");
         chauffer_zone_centrale();
