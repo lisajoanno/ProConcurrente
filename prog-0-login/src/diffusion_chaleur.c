@@ -68,9 +68,6 @@ char* tailles;
 // La matrice est representee par un float**
 typedef float **MAT;
 
-// On definit deux matrices : celle de l'etape n (mat_courante) et celle de l'etape n-1 (mat_prec)
-MAT mat_prec, mat_courante;
-
 /**
  * Reimplementation de la fonction pow a cause des problemes causes par celle de la librairie math.h.
  * */
@@ -87,18 +84,16 @@ int powi(int number, int exponent)
  * Initialise toutes les cases a 0 sauf la plaque interne.
  * Copie mat_prec dans mat_courante.
  * */
-void init() {
+MAT init() {
+    MAT m;
     // Alloue la place pour la matrice.
-	mat_prec = malloc(sizeof(float) * TAILLE_MATRICE * TAILLE_MATRICE);
-    mat_courante = malloc(sizeof(float) * TAILLE_MATRICE * TAILLE_MATRICE);
+	m = malloc(sizeof(float) * TAILLE_MATRICE * TAILLE_MATRICE);
+    // mat_courante = malloc(sizeof(float) * TAILLE_MATRICE * TAILLE_MATRICE);
     // Initialisation de la matrice a 0.
     for (int i =0; i<TAILLE_MATRICE; i++) {
         for (int j=0; j<TAILLE_MATRICE; j++) {
-            mat_prec[i] = (float *) malloc(sizeof(float) * TAILLE_MATRICE);
-            mat_prec[i][j] = 0;
-
-            mat_courante[i] = (float *) malloc(sizeof(float) * TAILLE_MATRICE);
-            mat_courante[i][j] = 0;
+            m[i] = (float *) malloc(sizeof(float) * TAILLE_MATRICE);
+            m[i][j] = 0;
         }
     }
     // Initialisation de la zone chauffee initialement.
@@ -107,27 +102,21 @@ void init() {
     TAILLE_ZONE_INT = idMax - idMin;
     for (int i =  idMin ; i < idMax  ; i++) {
         for (int j =  idMin  ; j <  idMax ; j++) {
-            mat_prec[i][j] = TEMP_CHAUD;
+            m[i][j] = TEMP_CHAUD;
         }
     }
-    // Copie des deux matrices.
-    for (int i = 0; i < TAILLE_MATRICE; i++) {
-        for(int j = 0; j < TAILLE_MATRICE; j++) {
-            mat_courante[i][j] = mat_prec[i][j];
-        }
-    }
+
+    return m;
 }
 
 /**
  * Libere la memoire des deux matrices initialisees.
  * */
-void free_mat() {
+void free_mat(MAT m) {
     for (int i =0; i<TAILLE_MATRICE; i++) {
-        free((void *) mat_prec[i]);
-        // free((void *) mat_courante[i]);
+        free((void *) m[i]);
     }
-    free(mat_prec);
-    // free(mat_courante);
+    free(m);
 }
 
 /**
@@ -229,10 +218,13 @@ void capter_options(int argc, char *argv[]) {
 /**
  * Propagation de la chaleur selon l'axe x.
  * */
-void diffuser_chaleur_x() {
+void diffuser_chaleur_x(MAT m1, MAT m2) {
+
     for(int i = 0; i < TAILLE_MATRICE; i++) {
         for(int j = 0; j < TAILLE_MATRICE; j++) {
-            mat_courante[i][j] = ((mat_prec[i][j - 1]) + (4 * mat_prec[i][j]) + (mat_prec[i][j + 1]))/H;
+
+            m1[i][j] = ((m2[i][j - 1]) + (4 * m2[i][j]) + (m2[i][j + 1]))/H;
+
         }
     }
 }
@@ -240,39 +232,52 @@ void diffuser_chaleur_x() {
 /**
  * Propagation de la chaleur selon l'axe y.
  * */
-void diffuser_chaleur_y() {
+void diffuser_chaleur_y(MAT m1, MAT m2) {
     for(int j = 0; j < TAILLE_MATRICE; j++) {
         for(int i = 0; i < TAILLE_MATRICE; i++) {
             if (i == 0) {
-                mat_prec[i][j] = ((4 * mat_courante[i][j]) + (mat_courante[i + 1][j]))/H;
+                m1[i][j] = ((4 * m2[i][j]) + (m2[i + 1][j]))/H;
             } else if (i == TAILLE_MATRICE - 1) {
-                mat_prec[i][j] = ((mat_courante[i - 1][j]) + (4 * mat_courante[i][j]))/H;
+                m1[i][j] = ((m2[i - 1][j]) + (4 * m2[i][j]))/H;
             } else {
-                mat_prec[i][j] = ((mat_courante[i - 1][j]) + (4 * mat_courante[i][j]) + (mat_courante[i + 1][j]))/H;
+                m1[i][j] = ((m2[i - 1][j]) + (4 * m2[i][j]) + (m2[i + 1][j]))/H;
             }
         }
     }
 }
 
-void chauffer_zone_centrale() {
+void chauffer_zone_centrale(MAT m) {
     int idMin =  powi(2,n-1) - powi(2,n-4);
     int idMax = powi(2,n-1) + powi(2,n-4);
     TAILLE_ZONE_INT = idMax - idMin;
     for (int i =  idMin ; i < idMax  ; i++) {
         for (int j =  idMin  ; j <  idMax ; j++) {
             // mat_courante[i][j] = TEMP_CHAUD;
-            mat_prec[i][j] = TEMP_CHAUD;
+            m[i][j] = TEMP_CHAUD;
         }
     }    
 }
 
 void lancer_algo() {
-    for(int i = 0; i < NB_EXE; i++) {
-        diffuser_chaleur_x();
-        diffuser_chaleur_y();
 
-        chauffer_zone_centrale();
-    }    
+    MAT mat_courante = init();
+    MAT mat_prec = init();
+    // printf("Débug\n");
+    if (AFF) {
+        printf("Matrice initiale : \n");
+        print_quarter_matrice(mat_prec);        
+    }
+    for(int i = 0; i < NB_EXE; i++) {
+        diffuser_chaleur_x(mat_courante,mat_prec);
+        diffuser_chaleur_y(mat_prec,mat_courante);
+        chauffer_zone_centrale(mat_prec);
+    }
+    if (AFF) {
+        printf("Matrice finale : \n");
+        print_quarter_matrice(mat_prec);        
+    }
+    free(mat_courante);
+    free(mat_prec);
 }
 
 
@@ -293,25 +298,10 @@ void calculer_temps_cpu() {
     // On lance les 10 executions.
     for (int i = 0; i < 10; i++) {
         temps_debut = clock();
-
-        // *** Debut de l'algorithme ***
-        init();
-
-        // On sauvegarde la matrice de depart, pour la prochaine execution.
-        for (int i = 0; i < TAILLE_MATRICE; i++) {
-            for(int j = 0; j < TAILLE_MATRICE; j++) {
-                mat_courante[i][j] = mat_prec[i][j];
-            }
-        }
-
         lancer_algo();
-
-        // *** Fin de l'algoritme ***
-
         temps_fin = clock();
         // On stocke le temps d'execution dans le tableau.
         temps[i] = (float)(temps_fin - temps_debut)/CLOCKS_PER_SEC;
-
     }
     // On determine le min et le max dans le tableau.
     for (int i = 0; i < taille_table; i++) {
@@ -347,16 +337,10 @@ void calculer_temps_user() {
     // 10 executions du programme :
     for (int i=0; i<10; i++) {
         t_begin = get_process_time();
-
-        init();
-
         lancer_algo();
-
         t_end = get_process_time();
-
         tabTimes[i] = (t_end - t_begin);
     }
-
     double max, min, moy;
     // On determine le min et le max dans le tableau.
     for (int i = 0; i < 10; i++) {
@@ -383,22 +367,14 @@ void calculer_temps_user() {
 
 void lancer_algo_affichage() {
     printf("\n\n      Probleme de taille... %d\n",n);
-    init();
-
-    printf("Temperature initiale :\n");
-    print_quarter_matrice(mat_prec);
-        
     lancer_algo();
-
-    printf("\nTemperature finale :\n");
-    print_quarter_matrice(mat_prec);
-    free_mat();    
 }
 
 /**
  * Lance la procedure de repartition de la chaleur sur une nouvelle matrice.
  * */
 void lancer_programme() {
+
     // Si l'utilisateur a demande le temps de reponse CPU :
     if(MES_AFF_CPU) {
         calculer_temps_cpu();
@@ -430,6 +406,7 @@ void lancer_programme() {
  * ETAPES, NB_THREADS et TAILLE_MATRICE.
  * */
 void lancer_selon_options() {
+
     while (*tailles++) {
         n = ((*(tailles-1)) - '0' )+4;
              
