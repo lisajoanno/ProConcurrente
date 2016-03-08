@@ -233,7 +233,7 @@ void diffuser_chaleur_x() {
     for(int i = 0; i < TAILLE_MATRICE; i++) {
         for(int j = 0; j < TAILLE_MATRICE; j++) {
             mat_courante[i][j] = ((mat_prec[i][j - 1]) + (4 * mat_prec[i][j]) + (mat_prec[i][j + 1]))/H;
-        }   
+        }
     }
 }
 
@@ -244,11 +244,11 @@ void diffuser_chaleur_y() {
     for(int j = 0; j < TAILLE_MATRICE; j++) {
         for(int i = 0; i < TAILLE_MATRICE; i++) {
             if (i == 0) {
-                mat_courante[i][j] = ((4 * mat_prec[i][j]) + (mat_prec[i + 1][j]))/H;
+                mat_prec[i][j] = ((4 * mat_courante[i][j]) + (mat_courante[i + 1][j]))/H;
             } else if (i == TAILLE_MATRICE - 1) {
-                mat_courante[i][j] = ((mat_prec[i - 1][j]) + (4 * mat_prec[i][j]))/H;
+                mat_prec[i][j] = ((mat_courante[i - 1][j]) + (4 * mat_courante[i][j]))/H;
             } else {
-                mat_courante[i][j] = ((mat_prec[i - 1][j]) + (4 * mat_prec[i][j]) + (mat_prec[i + 1][j]))/H;
+                mat_prec[i][j] = ((mat_courante[i - 1][j]) + (4 * mat_courante[i][j]) + (mat_courante[i + 1][j]))/H;
             }
         }
     }
@@ -260,25 +260,17 @@ void chauffer_zone_centrale() {
     TAILLE_ZONE_INT = idMax - idMin;
     for (int i =  idMin ; i < idMax  ; i++) {
         for (int j =  idMin  ; j <  idMax ; j++) {
-            mat_courante[i][j] = TEMP_CHAUD;
+            // mat_courante[i][j] = TEMP_CHAUD;
+            mat_prec[i][j] = TEMP_CHAUD;
         }
     }    
-}
-
-void swap()
-{
-    MAT* temp = mat_courante;
-    mat_prec = temp;
 }
 
 void lancer_algo() {
     for(int i = 0; i < NB_EXE; i++) {
         diffuser_chaleur_x();
-        swap();
         diffuser_chaleur_y();
-        swap();
 
-        // printf("On rechauffe\n");
         chauffer_zone_centrale();
     }    
 }
@@ -394,12 +386,12 @@ void lancer_algo_affichage() {
     init();
 
     printf("Temperature initiale :\n");
-    print_quarter_matrice(mat_courante);
+    print_quarter_matrice(mat_prec);
         
     lancer_algo();
 
     printf("\nTemperature finale :\n");
-    print_quarter_matrice(mat_courante);
+    print_quarter_matrice(mat_prec);
     free_mat();    
 }
 
