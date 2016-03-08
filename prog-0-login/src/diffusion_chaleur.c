@@ -87,12 +87,18 @@ int powi(int number, int exponent)
 MAT init() {
     MAT m;
     // Alloue la place pour la matrice.
-	m = malloc(sizeof(float) * TAILLE_MATRICE * TAILLE_MATRICE);
+	if((m = malloc(sizeof(float) * TAILLE_MATRICE * TAILLE_MATRICE)) == NULL) {
+        fprintf(stderr,"Allocation impossible dans init.\n");
+        exit(EXIT_FAILURE);        
+    }
     // mat_courante = malloc(sizeof(float) * TAILLE_MATRICE * TAILLE_MATRICE);
     // Initialisation de la matrice a 0.
     for (int i =0; i<TAILLE_MATRICE; i++) {
         for (int j=0; j<TAILLE_MATRICE; j++) {
-            m[i] = (float *) malloc(sizeof(float) * TAILLE_MATRICE);
+            if ((m[i] = (float *) malloc(sizeof(float) * TAILLE_MATRICE)) == NULL) {
+                fprintf(stderr,"Allocation impossible dans init.\n");
+                exit(EXIT_FAILURE);  
+            }
             m[i][j] = 0;
         }
     }
