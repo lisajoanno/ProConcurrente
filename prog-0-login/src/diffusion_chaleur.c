@@ -6,6 +6,8 @@
 #include <sys/time.h> // pour l'heure
 #include <sys/resource.h> // pour l'heure
 
+#include "diffusion_chaleur.h"
+
 /**
  * 
  * Projet de programmation concurrente : diffusion de la chaleur
@@ -18,58 +20,6 @@
  * 
  * Etape 0 rendue le 21/02/2016.
  * **/
-
-
-/******************* PARAMETRES DU SYSTEME ****************************/
-
-// Temperatures (en degres) des cases non chauffees a l'etat initial
-int TEMP_FROID = 0;
-// Temperature (en degres) des cases chauffees a l'etait initial
-int TEMP_CHAUD = 256;
-// Taille de la matrice courante entree par l'utilisateur (taille = (n+4)**2)
-int n;
-// Taille de la matrice courante
-int TAILLE_MATRICE; 
-// 1 : mesure et affichage du temps d'execution (consommation du CPU)
-// 0 : non
-int MES_AFF_CPU; 
-// 1 : mesure et affichage du temps d'execution (temps de reponse utilisateur)
-// 0 : non
-int MES_AFF_REPUSER; 
-// 1 : affichage de la temperature initiale et de la temperature finale pour les indices correspondant au quart superieur gauche du tableau
-// 0 : non
-int AFF; 
-// Nombre d'iterations a executer
-int NB_EXE; 
-// Etape du programme a executer
-int ETAPES; 
-// Nombre de threads a creer
-int NB_THREADS; 
-// Nombre de cases de la zone interne
-int TAILLE_ZONE_INT;
-
-// Constantes utilisee dans la formule de Taylor, fixee ici a 6
-float H = 6;
-
-// Chaines de caracteres contenant les options de l'utilisateur.
-// etapes, par exemple : "012345"
-char* etapes;
-// threads, par exemple "13"
-char* threads;
-// tailles, par exemple "024"
-char* tailles;
-
-
-
-
-
-/**************** DECLARATION & INITIALISATION DE LA MATRICE ****************/
-
-// La matrice est representee par un float**
-typedef float **MAT;
-
-// On definit deux matrices : celle de l'etape n (mat_courante) et celle de l'etape n-1 (mat_prec)
-MAT mat_prec, mat_courante;
 
 /**
  * Reimplementation de la fonction pow a cause des problemes causes par celle de la librairie math.h.
@@ -87,7 +37,8 @@ int powi(int number, int exponent)
  * Initialise toutes les cases a 0 sauf la plaque interne.
  * Copie mat_prec dans mat_courante.
  * */
-void init() {
+void init() 
+{
     // Alloue la place pour la matrice.
 	mat_prec = malloc(sizeof(float) * TAILLE_MATRICE * TAILLE_MATRICE);
     mat_courante = malloc(sizeof(float) * TAILLE_MATRICE * TAILLE_MATRICE);
@@ -121,7 +72,8 @@ void init() {
 /**
  * Libere la memoire des deux matrices initialisees.
  * */
-void free_mat() {
+void free_mat() 
+{
     for (int i =0; i<TAILLE_MATRICE; i++) {
         free((void *) mat_prec[i]);
         // free((void *) mat_courante[i]);
@@ -133,7 +85,8 @@ void free_mat() {
 /**
  * Affiche la matrice en parametre.
  * */
-void print_matrice(MAT m) {
+void print_matrice(MAT m) 
+{
     for (int i =0; i<TAILLE_MATRICE; i++) {
         for (int j=0; j<TAILLE_MATRICE; j++) {
             printf("| %.1f ",m[i][j]);
@@ -145,7 +98,8 @@ void print_matrice(MAT m) {
 /**
  * Affiche le quart superieur gauche de la matrice en parametre.
  * */
-void print_quarter_matrice(MAT m) {
+void print_quarter_matrice(MAT m)
+{
     for (int i =0; i<TAILLE_MATRICE/2; i++) {
         for (int j=0; j<TAILLE_MATRICE/2; j++) {
             printf("| %.1f ",m[i][j]);
@@ -170,7 +124,8 @@ double get_process_time() {
 /**
  * Affiche le nombre d'executions et la taille de la matrice.
  * */
-void afficher_options_synthetiques() {
+void afficher_options_synthetiques()
+{
     printf("Pour une matrice de taille : %d, nombre d'executions : %d\n",TAILLE_MATRICE,NB_EXE);
 }
 
@@ -178,7 +133,8 @@ void afficher_options_synthetiques() {
 /**
  * Sauvegarde des options precisees par l'utilisateur dans les variables prevues a cet effet.
  * */
-void capter_options(int argc, char *argv[]) {
+void capter_options(int argc, char *argv[])
+{
     // A 0 par defaut, elles seront mises a 1 si presentes dans les options.
 	MES_AFF_CPU = 0;
 	MES_AFF_REPUSER = 0;
@@ -229,7 +185,8 @@ void capter_options(int argc, char *argv[]) {
 /**
  * Propagation de la chaleur selon l'axe x.
  * */
-void diffuser_chaleur_x() {
+void diffuser_chaleur_x()
+{
     for(int i = 0; i < TAILLE_MATRICE; i++) {
         for(int j = 0; j < TAILLE_MATRICE; j++) {
             mat_courante[i][j] = ((mat_prec[i][j - 1]) + (4 * mat_prec[i][j]) + (mat_prec[i][j + 1]))/H;
@@ -240,7 +197,8 @@ void diffuser_chaleur_x() {
 /**
  * Propagation de la chaleur selon l'axe y.
  * */
-void diffuser_chaleur_y() {
+void diffuser_chaleur_y()
+{
     for(int j = 0; j < TAILLE_MATRICE; j++) {
         for(int i = 0; i < TAILLE_MATRICE; i++) {
             if (i == 0) {
@@ -254,7 +212,8 @@ void diffuser_chaleur_y() {
     }
 }
 
-void chauffer_zone_centrale() {
+void chauffer_zone_centrale()
+{
     int idMin =  powi(2,n-1) - powi(2,n-4);
     int idMax = powi(2,n-1) + powi(2,n-4);
     TAILLE_ZONE_INT = idMax - idMin;
@@ -280,7 +239,8 @@ void lancer_algo() {
  * Calcule et affiche le temps d'execution du programme
  * NB : les temps sont donnes en secondes. 
  * */
-void calculer_temps_cpu() {
+void calculer_temps_cpu()
+{
     float temps[10];
     int taille_table = sizeof(temps)/sizeof(float);
     // Les min et max, que l'on determinera plus loin.
@@ -339,7 +299,8 @@ void calculer_temps_cpu() {
 /**
  * Simule la diffusion de la chaleur en calculant le temps de reponse utilisateur.
  * */
-void calculer_temps_user() {
+void calculer_temps_user()
+{
     // Tableau contenant les 10 mesures de temps.
     double tabTimes[10];    
     // Temps au debut de l'execution, temps a la fin.
@@ -381,7 +342,8 @@ void calculer_temps_user() {
     afficher_options_synthetiques();
 }
 
-void lancer_algo_affichage() {
+void lancer_algo_affichage()
+{
     printf("\n\n      Probleme de taille... %d\n",n);
     init();
 
@@ -398,7 +360,8 @@ void lancer_algo_affichage() {
 /**
  * Lance la procedure de repartition de la chaleur sur une nouvelle matrice.
  * */
-void lancer_programme() {
+void lancer_programme()
+{
     // Si l'utilisateur a demande le temps de reponse CPU :
     if(MES_AFF_CPU) {
         calculer_temps_cpu();
@@ -429,7 +392,8 @@ void lancer_programme() {
  * Pour chacune de ces configurations, cette fonction initialisera 
  * ETAPES, NB_THREADS et TAILLE_MATRICE.
  * */
-void lancer_selon_options() {
+void lancer_selon_options()
+{
     while (*tailles++) {
         n = ((*(tailles-1)) - '0' )+4;
              
@@ -441,6 +405,21 @@ void lancer_selon_options() {
     }
 }
 
+
+/**
+ * Creer des threads et découper la matrice
+ *
+ * */
+void creer_threads()
+{
+    // Decoupage de la matrice en blocs :
+    // la variable NB_CASES_BLOC contient le nb de
+    // cellules dans chaque bloc.
+    int NB_CASES_BLOC = TAILLE_MATRICE/NB_THREADS;
+    
+}
+
+
 /**
  * Programme principal.
  * 
@@ -450,11 +429,11 @@ void lancer_selon_options() {
  * toutes les configurations donnees par les options.
  * */
 int main(int argc, char *argv[]) {
-	if (argc != 1) {
-		capter_options(argc,argv);
-	}
+    if (argc != 1) {
+        capter_options(argc,argv);
+    }
     
     lancer_selon_options();
 
-	return 0;
+    return 0;
 }
