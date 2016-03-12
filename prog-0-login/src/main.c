@@ -18,38 +18,7 @@
 
 /*********************** PROGRAMME DE DIFFUSION DE LA CHALEUR ***********************/
 
-/**
- * Propagation de la chaleur selon l'axe x.
- * */
-void diffuser_chaleur_x(MAT m1, MAT m2) {
 
-    for(int i = 0; i < TAILLE_MATRICE; i++) {
-        for(int j = 0; j < TAILLE_MATRICE; j++) {
-
-            m1[i][j] = ((m2[i][j - 1]) + (4 * m2[i][j]) + (m2[i][j + 1]))/H;
-
-        }
-    }
-}
-
-
-
-/**
- * Propagation de la chaleur selon l'axe y.
- * */
-void diffuser_chaleur_y(MAT m1, MAT m2) {
-    for(int j = 0; j < TAILLE_MATRICE; j++) {
-        for(int i = 0; i < TAILLE_MATRICE; i++) {
-            if (i == 0) {
-                m1[i][j] = ((4 * m2[i][j]) + (m2[i + 1][j]))/H;
-            } else if (i == TAILLE_MATRICE - 1) {
-                m1[i][j] = ((m2[i - 1][j]) + (4 * m2[i][j]))/H;
-            } else {
-                m1[i][j] = ((m2[i - 1][j]) + (4 * m2[i][j]) + (m2[i + 1][j]))/H;
-            }
-        }
-    }
-}
 
 
 
@@ -65,8 +34,8 @@ void lancer_algo() {
     }
     for(int i = 0; i < NB_EXE; i++) {
         if (ETAPE == 0) {
-            diffuser_chaleur_x(mat_courante,mat_prec);
-            diffuser_chaleur_y(mat_prec,mat_courante);
+            diffuser_chaleur_x(mat_courante,mat_prec,TAILLE_MATRICE);
+            diffuser_chaleur_y(mat_prec,mat_courante,TAILLE_MATRICE);
             chauffer_zone_centrale(mat_prec,n);
         }
     }

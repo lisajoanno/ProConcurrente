@@ -4,6 +4,7 @@
 int TEMP_CHAUD = 256;
 
 
+
 /**
  * Alloue l'espace memoire necessaire a la matrice en parametre.
  * Initialise toutes ses cases a 0 sauf la plaque interne.

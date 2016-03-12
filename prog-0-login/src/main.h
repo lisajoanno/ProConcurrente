@@ -1,7 +1,7 @@
 #ifndef _MAIN_H
 #define _MAIN_H
 
-// #include "diffusion_chaleur.h"
+#include "diffusion_chaleur.h"
 #include "utils.h"
 
 /******************* PARAMETRES DU SYSTEME ****************************/
@@ -26,8 +26,6 @@ int ETAPE;
 // Nombre de threads a creer
 int NB_THREADS; 
 
-// Constantes utilisee dans la formule de Taylor, fixee ici a 6
-float H = 6;
 
 // Chaines de caracteres contenant les options de l'utilisateur.
 // etapes, par exemple : "012345"
@@ -42,10 +40,6 @@ char* tailles;
 // On definit deux matrices : celle de l'etape n (mat_courante) et celle de l'etape n-1 (mat_prec)
 MAT mat_prec, mat_courante;
 
-// Diffuse la chaleur sur l'axe x
-void diffuser_chaleur_x(MAT,MAT);
-// Diffuse la chaleur sur l'axe y
-void diffuser_chaleur_y(MAT,MAT);
 
 // Lance l'algorithme avec les configurations actuelles
 void lancer_algo();

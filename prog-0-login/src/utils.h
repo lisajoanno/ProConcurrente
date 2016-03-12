@@ -9,11 +9,13 @@
 #include <sys/time.h> // pour l'heure
 #include <sys/resource.h> // pour l'heure
 
-
 // La matrice est representee par un float**
 typedef float **MAT;
+
+
+
 // Initialise la matrice en parametre
-MAT init(int,int n);
+MAT init(int,int);
 // Libere la matrice en parametre
 void free_mat(MAT,int);
 // Chauffe la zone centrale de la matrice placee en parametre
