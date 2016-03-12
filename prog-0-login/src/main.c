@@ -193,15 +193,23 @@ void lancer_selon_options() {
         threads = tempThreads;
         while (*threads++)
         {
-            NB_THREADS = (*(threads-1)) - '0';
+            if ((*(threads-1)) - '0' == 0)
+                NB_THREADS = 1;
+            else
+                NB_THREADS = 2<<((*(threads-1)) - '0');
+
             printf("   Nombre de threads... %d\n",NB_THREADS);
-            
             
             // Parcours des tailles de matrice
             tailles=tempTailles;
             while (*tailles++) {
                 n = ((*(tailles-1)) - '0' )+4;
                 TAILLE_MATRICE = (int) 1 << n;
+
+                // Nombre de cellules par thread
+                NB_CASES_BLOC = (TAILLE_MATRICE * TAILLE_MATRICE) / NB_THREADS;
+
+                printf("   Nombre de cellule par thread... %d\n",NB_CASES_BLOC);
 
                 // On a bien initialise ETAPES, NB_THREADS et TAILLE_MATRICE.
                 // On lance le programme pour chacunes des configurations.

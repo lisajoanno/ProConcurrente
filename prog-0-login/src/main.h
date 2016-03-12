@@ -25,6 +25,8 @@ int NB_EXE;
 int ETAPE; 
 // Nombre de threads a creer
 int NB_THREADS; 
+// Nombre de cellules associées à une thread
+int NB_CASES_BLOC;
 
 
 // Chaines de caracteres contenant les options de l'utilisateur.
