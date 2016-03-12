@@ -51,7 +51,7 @@ typedef float **MAT;
 MAT mat_prec, mat_courante;
 
 
-void init();
+MAT init();
 int powi(int number, int exponent);
 void free_mat();
 void print_matrice(MAT m);
