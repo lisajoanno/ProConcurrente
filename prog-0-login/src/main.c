@@ -45,12 +45,14 @@ void lancer_algo() {
                 printf("i = %f\n", i);
                 printf("On va de %f à %f !\n",TAILLE_MATRICE*i,  TAILLE_MATRICE*(i+pas) );
                 diffuser_chaleur_x_ij(mat_courante,mat_prec,TAILLE_MATRICE*i, TAILLE_MATRICE*(i+pas));
-                // diffuser_chaleur_x_ij(mat_prec, mat_courante,i, i+pas);
+                diffuser_chaleur_y_ij(mat_prec, mat_courante,TAILLE_MATRICE*i, TAILLE_MATRICE*(i+pas));    
+                chauffer_zone_centrale(mat_prec,n);
             }
+        
     }
     if (AFF) {
         printf("Matrice finale : \n");
-        print_quarter_matrice(mat_courante,TAILLE_MATRICE);        
+        print_quarter_matrice(mat_prec,TAILLE_MATRICE);        
     }
     free_mat(mat_courante,TAILLE_MATRICE);
     free_mat(mat_prec,TAILLE_MATRICE);
