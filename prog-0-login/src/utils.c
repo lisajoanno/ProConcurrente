@@ -18,11 +18,15 @@ MAT init(int taille, int n) {
     }
     // Initialisation de la matrice a 0.
     for (int i =0; i<taille; i++) {
+    	if ((m[i] = (float *) malloc(sizeof(float) * taille)) == NULL) {
+            fprintf(stderr,"Allocation impossible dans init.\n");
+            exit(EXIT_FAILURE);  
+        }
         for (int j=0; j<taille; j++) {
-            if ((m[i] = (float *) malloc(sizeof(float) * taille)) == NULL) {
-                fprintf(stderr,"Allocation impossible dans init.\n");
-                exit(EXIT_FAILURE);  
-            }
+        	// if ((m[i] = (float *) malloc(sizeof(float) * taille)) == NULL) {
+         //    	fprintf(stderr,"Allocation impossible dans init.\n");
+         //    	exit(EXIT_FAILURE);  
+        	// }
             m[i][j] = 0;
         }
     }
