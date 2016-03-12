@@ -1,13 +1,12 @@
 #include "utils.h"
 
-// Temperature (en degres) des cases chauffees a l'etait initial
+// Temperature (en degres) des cases chauffees a l'etat initial
 int TEMP_CHAUD = 256;
 
 
 /**
- * Alloue l'espace memoire necessaire aux matrices.
- * Initialise toutes les cases a 0 sauf la plaque interne.
- * Copie mat_prec dans mat_courante.
+ * Alloue l'espace memoire necessaire a la matrice en parametre.
+ * Initialise toutes ses cases a 0 sauf la plaque interne.
  * */
 MAT init(int taille, int n) {
     MAT m;
@@ -16,7 +15,6 @@ MAT init(int taille, int n) {
         fprintf(stderr,"Allocation impossible dans init.\n");
         exit(EXIT_FAILURE);        
     }
-    // mat_courante = malloc(sizeof(float) * taille * taille);
     // Initialisation de la matrice a 0.
     for (int i =0; i<taille; i++) {
         for (int j=0; j<taille; j++) {
@@ -27,14 +25,16 @@ MAT init(int taille, int n) {
             m[i][j] = 0;
         }
     }
-
+    // Chauffe la plaque centrale
     chauffer_zone_centrale(m, n);
 
     return m;
 }
 
+
+
 /**
- * Libere la memoire des deux matrices initialisees.
+ * Libere la memoire de la matrice placée en paramètre.
  * */
 void free_mat(MAT m, int taille) {
     for (int i =0; i<taille; i++) {
@@ -45,27 +45,17 @@ void free_mat(MAT m, int taille) {
 
 
 
+/**
+ * Chauffe la zone centrale de la matrice placee en parametre, a la temperature TEMP_CHAUD.
+ **/
 void chauffer_zone_centrale(MAT m, int n) {
-    int idMin =  powi(2,n-1) - powi(2,n-4);
-    int idMax = powi(2,n-1) + powi(2,n-4);
+    int idMin = (1<<(n-1)) - (1<<(n-4));
+    int idMax = (1<<(n-1)) + (1<<(n-4));
     for (int i =  idMin ; i < idMax  ; i++) {
         for (int j =  idMin  ; j <  idMax ; j++) {
-            // mat_courante[i][j] = TEMP_CHAUD;
             m[i][j] = TEMP_CHAUD;
         }
     }    
-}
-
-
-/**
- * Reimplementation de la fonction pow a cause des problemes causes par celle de la librairie math.h.
- * */
-int powi(int number, int exponent)
-{
-    int i, product = 1;
-    for (i = 0; i < exponent; i++)
-        product *= number;
-    return product;
 }
 
 
@@ -76,6 +66,7 @@ int powi(int number, int exponent)
 void afficher_options_synthetiques(int taille, int exes) {
     printf("Pour une matrice de taille : %d, nombre d'executions : %d\n",taille,exes);
 }
+
 
 
 /**
@@ -90,6 +81,8 @@ void print_matrice(MAT m, int taille) {
     }
 }
 
+
+
 /**
  * Affiche le quart superieur gauche de la matrice en parametre.
  * */
@@ -101,6 +94,7 @@ void print_quarter_matrice(MAT m, int taille) {
         printf("|\n");
     }
 }
+
 
 
 /**

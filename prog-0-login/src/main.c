@@ -16,6 +16,236 @@
 
 
 
+/*********************** PROGRAMME DE DIFFUSION DE LA CHALEUR ***********************/
+
+/**
+ * Propagation de la chaleur selon l'axe x.
+ * */
+void diffuser_chaleur_x(MAT m1, MAT m2) {
+
+    for(int i = 0; i < TAILLE_MATRICE; i++) {
+        for(int j = 0; j < TAILLE_MATRICE; j++) {
+
+            m1[i][j] = ((m2[i][j - 1]) + (4 * m2[i][j]) + (m2[i][j + 1]))/H;
+
+        }
+    }
+}
+
+
+
+/**
+ * Propagation de la chaleur selon l'axe y.
+ * */
+void diffuser_chaleur_y(MAT m1, MAT m2) {
+    for(int j = 0; j < TAILLE_MATRICE; j++) {
+        for(int i = 0; i < TAILLE_MATRICE; i++) {
+            if (i == 0) {
+                m1[i][j] = ((4 * m2[i][j]) + (m2[i + 1][j]))/H;
+            } else if (i == TAILLE_MATRICE - 1) {
+                m1[i][j] = ((m2[i - 1][j]) + (4 * m2[i][j]))/H;
+            } else {
+                m1[i][j] = ((m2[i - 1][j]) + (4 * m2[i][j]) + (m2[i + 1][j]))/H;
+            }
+        }
+    }
+}
+
+
+
+/**
+ * Lancement de l'algorithme avec deux matrices.
+ * */
+void lancer_algo() {
+    MAT mat_courante = init(TAILLE_MATRICE,n);
+    MAT mat_prec = init(TAILLE_MATRICE,n);
+    if (AFF) {
+        printf("Matrice initiale : \n");
+        print_quarter_matrice(mat_prec,TAILLE_MATRICE);        
+    }
+    for(int i = 0; i < NB_EXE; i++) {
+        if (ETAPE == 0) {
+            diffuser_chaleur_x(mat_courante,mat_prec);
+            diffuser_chaleur_y(mat_prec,mat_courante);
+            chauffer_zone_centrale(mat_prec,n);
+        }
+    }
+    if (AFF) {
+        printf("Matrice finale : \n");
+        print_quarter_matrice(mat_prec,TAILLE_MATRICE);        
+    }
+    free_mat(mat_courante,TAILLE_MATRICE);
+    free_mat(mat_prec,TAILLE_MATRICE);
+}
+
+
+
+/**
+ * Calcule et affiche le temps d'execution du programme
+ * NB : les temps sont donnes en secondes. 
+ * */
+void calculer_temps_cpu() {
+    float temps[10];
+    int taille_table = sizeof(temps)/sizeof(float);
+    // Les min et max, que l'on determinera plus loin.
+    float min = 1.0;
+    float max = 0.0;
+    // Pour calculer la moyenne.
+    float moy = 0.0;
+    clock_t temps_debut, temps_fin;
+    // On lance les 10 executions.
+    for (int i = 0; i < 10; i++) {
+        temps_debut = clock();
+        lancer_algo();
+        temps_fin = clock();
+        // On stocke le temps d'execution dans le tableau.
+        temps[i] = (float)(temps_fin - temps_debut)/CLOCKS_PER_SEC;
+    }
+    // On determine le min et le max dans le tableau.
+    for (int i = 0; i < taille_table; i++) {
+        if(max < temps[i]) {
+            max = temps[i];
+        }
+        if(min > temps[i]) {
+            min = temps[i];
+        }
+    }
+    // On fait la moyenne des temps restants.
+    for (int i = 0; i < taille_table; i++) {
+        if(temps[i] != min && temps[i] != max) {
+            moy += temps[i];
+        }
+    }
+
+    // On fait la moyenne des 8 resultats d'execution.
+    moy /= (taille_table - 2);
+    // On affiche le temps d'execution final.
+    printf("Temps CPU consomme par le programme : %f secondes\n", moy);
+    afficher_options_synthetiques(TAILLE_MATRICE,NB_EXE);
+}
+
+
+
+/**
+ * Simule la diffusion de la chaleur en calculant le temps de reponse utilisateur.
+ * */
+void calculer_temps_user() {
+    // Tableau contenant les 10 mesures de temps.
+    double tabTimes[10];    
+    // Temps au debut de l'execution, temps a la fin.
+    double t_begin, t_end;
+    // 10 executions du programme :
+    for (int i=0; i<10; i++) {
+        t_begin = get_process_time();
+        lancer_algo();
+        t_end = get_process_time();
+        tabTimes[i] = (t_end - t_begin);
+    }
+    double max, min, moy;
+    // On determine le min et le max dans le tableau.
+    for (int i = 0; i < 10; i++) {
+        if(max < tabTimes[i]) {
+            max = tabTimes[i];
+        }
+        if(min > tabTimes[i]) {
+            min = tabTimes[i];
+        }
+    }
+    // On fait la moyenne des temps restants.
+    for (int i = 0; i < 10; i++) {
+        if(tabTimes[i] != min && tabTimes[i] != max) {
+            moy += tabTimes[i];
+        }
+    }
+    moy /= 8;
+    // On affiche le temps d'execution final.
+    printf("Temps d'execution (reponse utilisateur) du programme : %f secondes\n", moy);
+    afficher_options_synthetiques(TAILLE_MATRICE,NB_EXE);
+}
+
+/**
+ * Lance l'algorithme apres avoir affiche la taille du probleme.
+ * **/
+void lancer_algo_affichage() {
+    printf("\n\n      Probleme de taille... %d\n",n);
+    lancer_algo();
+}
+
+
+
+/**
+ * Lance la procedure de repartition de la chaleur sur une nouvelle matrice.
+ * */
+void lancer_programme() {
+    // Si l'utilisateur a demande le temps de reponse CPU :
+    if(MES_AFF_CPU) {
+        calculer_temps_cpu();
+    } 
+
+    // Si l'utilisateur a demande le temps de reponse utilisateur :
+    if(MES_AFF_REPUSER) {
+        calculer_temps_user();
+    }
+
+    // Si l'utilisateur a demande l'affichage :
+    if(AFF) {
+        lancer_algo_affichage();
+    }
+}
+
+
+
+/**
+ * Lance un nouvel algorithme pour chaque taille de matrice.
+ * Initilialise TAILLE_MATRICE pour chaque n.
+ * 
+ * En effet a l'etape 0, seules les tailles de matrices font varier l'algorithme.
+ * 
+ * Lors des etapes a venir, cette fonction lancera un nouveau programme pour chaque :
+ * - etape
+ * - nombre de thread
+ * - taille de matrice.
+ * 
+ * Pour chacune de ces configurations, cette fonction initialisera 
+ * ETAPES, NB_THREADS et TAILLE_MATRICE.
+ * */
+void lancer_selon_options() {
+    char* tempThreads = threads;
+    char* tempTailles = tailles;
+
+    // Parcours des etapes
+    while (*etapes++)
+    {
+        ETAPE = (*(etapes-1)) - '0';
+        printf("Execution de l'etape... %d\n",ETAPE);
+        
+        
+        // Parcours des nombres de threads
+        threads = tempThreads;
+        while (*threads++)
+        {
+            NB_THREADS = (*(threads-1)) - '0';
+            printf("   Nombre de threads... %d\n",NB_THREADS);
+            
+            
+            // Parcours des tailles de matrice
+            tailles=tempTailles;
+            while (*tailles++) {
+                n = ((*(tailles-1)) - '0' )+4;
+                TAILLE_MATRICE = (int) 1 << n;
+
+                // On a bien initialise ETAPES, NB_THREADS et TAILLE_MATRICE.
+                // On lance le programme pour chacunes des configurations.
+                lancer_programme();
+            }
+            printf("\n");
+        }
+        printf("\n");
+    }
+}
+
+
+
 /**
  * Sauvegarde des options precisees par l'utilisateur dans les variables prevues a cet effet.
  * */
@@ -61,201 +291,6 @@ void capter_options(int argc, char *argv[]) {
     }
 }
 
-
-
-
-/*********************** PROGRAMME DE DIFFUSION DE LA CHALEUR ***********************/
-
-/**
- * Propagation de la chaleur selon l'axe x.
- * */
-void diffuser_chaleur_x(MAT m1, MAT m2) {
-
-    for(int i = 0; i < TAILLE_MATRICE; i++) {
-        for(int j = 0; j < TAILLE_MATRICE; j++) {
-
-            m1[i][j] = ((m2[i][j - 1]) + (4 * m2[i][j]) + (m2[i][j + 1]))/H;
-
-        }
-    }
-}
-
-/**
- * Propagation de la chaleur selon l'axe y.
- * */
-void diffuser_chaleur_y(MAT m1, MAT m2) {
-    for(int j = 0; j < TAILLE_MATRICE; j++) {
-        for(int i = 0; i < TAILLE_MATRICE; i++) {
-            if (i == 0) {
-                m1[i][j] = ((4 * m2[i][j]) + (m2[i + 1][j]))/H;
-            } else if (i == TAILLE_MATRICE - 1) {
-                m1[i][j] = ((m2[i - 1][j]) + (4 * m2[i][j]))/H;
-            } else {
-                m1[i][j] = ((m2[i - 1][j]) + (4 * m2[i][j]) + (m2[i + 1][j]))/H;
-            }
-        }
-    }
-}
-
-void lancer_algo() {
-
-    MAT mat_courante = init(TAILLE_MATRICE,n);
-    MAT mat_prec = init(TAILLE_MATRICE,n);
-    // printf("Débug\n");
-    if (AFF) {
-        printf("Matrice initiale : \n");
-        print_quarter_matrice(mat_prec,TAILLE_MATRICE);        
-    }
-    for(int i = 0; i < NB_EXE; i++) {
-        diffuser_chaleur_x(mat_courante,mat_prec);
-        diffuser_chaleur_y(mat_prec,mat_courante);
-        chauffer_zone_centrale(mat_prec,n);
-    }
-    if (AFF) {
-        printf("Matrice finale : \n");
-        print_quarter_matrice(mat_prec,TAILLE_MATRICE);        
-    }
-    free_mat(mat_courante,TAILLE_MATRICE);
-    free_mat(mat_prec,TAILLE_MATRICE);
-}
-
-
-/**
- * Calcule et affiche le temps d'execution du programme
- * NB : les temps sont donnes en secondes. 
- * */
-void calculer_temps_cpu() {
-    float temps[10];
-    int taille_table = sizeof(temps)/sizeof(float);
-    // Les min et max, que l'on determinera plus loin.
-    float min = 1.0;
-    float max = 0.0;
-    // Pour calculer la moyenne.
-    float moy = 0.0;
-
-    clock_t temps_debut, temps_fin;
-    // On lance les 10 executions.
-    for (int i = 0; i < 10; i++) {
-        temps_debut = clock();
-        lancer_algo();
-        temps_fin = clock();
-        // On stocke le temps d'execution dans le tableau.
-        temps[i] = (float)(temps_fin - temps_debut)/CLOCKS_PER_SEC;
-    }
-    // On determine le min et le max dans le tableau.
-    for (int i = 0; i < taille_table; i++) {
-        if(max < temps[i]) {
-            max = temps[i];
-        }
-        if(min > temps[i]) {
-            min = temps[i];
-        }
-    }
-    // On fait la moyenne des temps restants.
-    for (int i = 0; i < taille_table; i++) {
-        if(temps[i] != min && temps[i] != max) {
-            moy += temps[i];
-        }
-    }
-
-    // On fait la moyenne des 8 resultats d'execution.
-    moy /= (taille_table - 2);
-    // On affiche le temps d'execution final.
-    printf("Temps CPU consomme par le programme : %f secondes\n", moy);
-    afficher_options_synthetiques(TAILLE_MATRICE,NB_EXE);
-}
-
-/**
- * Simule la diffusion de la chaleur en calculant le temps de reponse utilisateur.
- * */
-void calculer_temps_user() {
-    // Tableau contenant les 10 mesures de temps.
-    double tabTimes[10];    
-    // Temps au debut de l'execution, temps a la fin.
-    double t_begin, t_end;
-    // 10 executions du programme :
-    for (int i=0; i<10; i++) {
-        t_begin = get_process_time();
-        lancer_algo();
-        t_end = get_process_time();
-        tabTimes[i] = (t_end - t_begin);
-    }
-    double max, min, moy;
-    // On determine le min et le max dans le tableau.
-    for (int i = 0; i < 10; i++) {
-        if(max < tabTimes[i]) {
-            max = tabTimes[i];
-        }
-        if(min > tabTimes[i]) {
-            min = tabTimes[i];
-        }
-    }
-    // On fait la moyenne des temps restants.
-    for (int i = 0; i < 10; i++) {
-        if(tabTimes[i] != min && tabTimes[i] != max) {
-            moy += tabTimes[i];
-        }
-    }
-
-    // On fait la moyenne des 8 resultats d'execution.
-    moy /= 8;
-    // On affiche le temps d'execution final.
-    printf("Temps d'execution (reponse utilisateur) du programme : %f secondes\n", moy);
-    afficher_options_synthetiques(TAILLE_MATRICE,NB_EXE);
-}
-
-void lancer_algo_affichage() {
-    printf("\n\n      Probleme de taille... %d\n",n);
-    lancer_algo();
-}
-
-/**
- * Lance la procedure de repartition de la chaleur sur une nouvelle matrice.
- * */
-void lancer_programme() {
-
-    // Si l'utilisateur a demande le temps de reponse CPU :
-    if(MES_AFF_CPU) {
-        calculer_temps_cpu();
-    } 
-
-    // Si l'utilisateur a demande le temps de reponse utilisateur :
-    if(MES_AFF_REPUSER) {
-        calculer_temps_user();
-    }
-
-    // Si l'utilisateur a demande l'affichage :
-    if(AFF) {
-        lancer_algo_affichage();
-    }
-}
-
-/**
- * Lance un nouvel algorithme pour chaque taille de matrice.
- * Initilialise TAILLE_MATRICE pour chaque n.
- * 
- * En effet a l'etape 0, seules les tailles de matrices font varier l'algorithme.
- * 
- * Lors des etapes a venir, cette fonction lancera un nouveau programme pour chaque :
- * - etape
- * - nombre de thread
- * - taille de matrice.
- * 
- * Pour chacune de ces configurations, cette fonction initialisera 
- * ETAPES, NB_THREADS et TAILLE_MATRICE.
- * */
-void lancer_selon_options() {
-
-    while (*tailles++) {
-        n = ((*(tailles-1)) - '0' )+4;
-             
-        TAILLE_MATRICE = (int) powi(2, n);
-
-        // On a bien initialise ETAPES, NB_THREADS et TAILLE_MATRICE.
-        // On lance le programme pour chacunes des configurations :
-        lancer_programme();
-    }
-}
 
 /**
  * Programme principal.
