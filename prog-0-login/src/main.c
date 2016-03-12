@@ -21,7 +21,6 @@
 
 
 
-
 /**
  * Lancement de l'algorithme avec deux matrices.
  * */
@@ -32,16 +31,26 @@ void lancer_algo() {
         printf("Matrice initiale : \n");
         print_quarter_matrice(mat_prec,TAILLE_MATRICE);        
     }
-    for(int i = 0; i < NB_EXE; i++) {
-        if (ETAPE == 0) {
+    if (ETAPE == 0) {
+        for(int i = 0; i < NB_EXE; i++) {
             diffuser_chaleur_x(mat_courante,mat_prec,TAILLE_MATRICE);
             diffuser_chaleur_y(mat_prec,mat_courante,TAILLE_MATRICE);
             chauffer_zone_centrale(mat_prec,n);
         }
+    } else if (ETAPE == 1) {
+            printf("NB_THREADS = %d\n", NB_THREADS);
+            float pas = 1/ (float) NB_THREADS;
+            printf("Le pas est ici : %f\n", pas);
+            for(float i=0; i<1; i=i+pas) {
+                printf("i = %f\n", i);
+                printf("On va de %f à %f !\n",TAILLE_MATRICE*i,  TAILLE_MATRICE*(i+pas) );
+                diffuser_chaleur_x_ij(mat_courante,mat_prec,TAILLE_MATRICE*i, TAILLE_MATRICE*(i+pas));
+                // diffuser_chaleur_x_ij(mat_prec, mat_courante,i, i+pas);
+            }
     }
     if (AFF) {
         printf("Matrice finale : \n");
-        print_quarter_matrice(mat_prec,TAILLE_MATRICE);        
+        print_quarter_matrice(mat_courante,TAILLE_MATRICE);        
     }
     free_mat(mat_courante,TAILLE_MATRICE);
     free_mat(mat_prec,TAILLE_MATRICE);
