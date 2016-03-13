@@ -44,16 +44,16 @@ void lancer_algo() {
         float pas = (1 << t);
         pas = 1/pas;
         // printf("Le pas est ici : %f\n", pas);
-
-        for(float i=0; i<1; i=i+pas) {
-            for (float j=0; j<1; j=j+pas) {
-                printf("i va de %f à %f,      j va de %f à %f\n",i,i+pas,j,j+pas);
-                diffuser_chaleur_x_ij(mat_courante,mat_prec,TAILLE_MATRICE*i, TAILLE_MATRICE*(i+pas),TAILLE_MATRICE*j, TAILLE_MATRICE*(j+pas));
-                diffuser_chaleur_y_ij(mat_prec, mat_courante,TAILLE_MATRICE*i, TAILLE_MATRICE*(i+pas),TAILLE_MATRICE*j, TAILLE_MATRICE*(j+pas));
-                chauffer_zone_centrale(mat_prec,n);
-            }            
-        }
-        
+        for(int i = 0; i < NB_EXE; i++) {
+            for(float i=0; i<1; i=i+pas) {
+                for (float j=0; j<1; j=j+pas) {
+                    // printf("i va de %f à %f,      j va de %f à %f\n",TAILLE_MATRICE*i, TAILLE_MATRICE*(i+pas),TAILLE_MATRICE*j, TAILLE_MATRICE*(j+pas));
+                    diffuser_chaleur_x_ij(mat_courante,mat_prec,TAILLE_MATRICE*i, TAILLE_MATRICE*j, TAILLE_MATRICE*pas);
+                    diffuser_chaleur_y_ij(mat_prec, mat_courante,TAILLE_MATRICE*i, TAILLE_MATRICE*j, TAILLE_MATRICE*pas);
+                    chauffer_zone_centrale(mat_prec,n);
+                }            
+            }
+        }        
     }
     if (AFF) {
         printf("Matrice finale : \n");
