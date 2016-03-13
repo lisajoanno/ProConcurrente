@@ -308,16 +308,17 @@ void *thread(void *attr)
 
 void init_threads()
 {
-    int thre = 1 << (2 * NB_THREADS);
+    int thre = 1 << (2 * t);
     pthread_t th[thre];
     ThreadParam par[thre];
 
     int pas = TAILLE_MATRICE;
-    pas = TAILLE_MATRICE / (1 << NB_THREADS);
+    pas = TAILLE_MATRICE / (1 << t);
 
     int id = 0;
     int i = 0;
 
+    printf("pas : %d\n", pas );
     if(pthread_barrier_init(&barrierX, NULL, thre))
     {
         printf("Impossible de créer la barriere\n");
@@ -338,7 +339,6 @@ void init_threads()
         int j = 0;
         for (j = 0; j < TAILLE_MATRICE; j = j + pas) {
             
-
             par[id].x_init = i;
             par[id].y_init = j;
             par[id].x_fin = i + pas;
