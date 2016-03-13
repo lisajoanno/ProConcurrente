@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c99
+CFLAGS = -Wall -Wextra -pthread
 EXEC_NAME = main
 # OBJ_FILES = diffusion_chaleur.o utils.o main.o 
 
@@ -11,13 +11,13 @@ BIN_DIR = bin
 all : create_bin $(EXEC_NAME)
 
 clean : 
-	rm -rf $(EXEC_NAME) $(BIN_DIR)
+	rm -rf $(EXEC_NAME) $(BIN_DIR) 
 
 create_bin : 
 	mkdir -p $(BIN_DIR)
 
-$(EXEC_NAME) : $(BIN_DIR)/main.o $(BIN_DIR)/diffusion_chaleur.o $(BIN_DIR)/utils.o
-	$(CC) -o $(EXEC_NAME) $(BIN_DIR)/main.o $(BIN_DIR)/diffusion_chaleur.o $(BIN_DIR)/utils.o 
+$(EXEC_NAME) : $(BIN_DIR)/main.o $(BIN_DIR)/diffusion_chaleur.o $(BIN_DIR)/utils.o (BIN_DIR)/thread_barriere.o
+	$(CC) -o $(EXEC_NAME) $(BIN_DIR)/main.o $(BIN_DIR)/diffusion_chaleur.o $(BIN_DIR)/utils.o (BIN_DIR)/thread_barriere.o
 
 $(BIN_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -o $@ -c $<
