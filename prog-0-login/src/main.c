@@ -286,7 +286,7 @@ void capter_options(int argc, char *argv[]) {
 
 void *thread(void *attr)
 {
-    struct thread_param *p = (struct thread_param*)(thread_param);
+    struct thread_param *p = (struct thread_param*)(attr);
     int i;
     for(i = 0; i < NB_EXE; i++) {
         diffuser_chaleur_x_ij(mat_courante, mat_prec, p->x_init, p->x_fin, p->y_init, p->y_fin);
