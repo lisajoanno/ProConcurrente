@@ -305,7 +305,7 @@ void *thread(void *attr)
 
 void init_threads()
 {
-    thread = 1<<(2*NB_THREADS);
+    int thread = 1<<(2*NB_THREADS);
     pthread_t th[thread];
     Thread_Param par[thread];
 
