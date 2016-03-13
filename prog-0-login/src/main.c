@@ -31,23 +31,28 @@ void lancer_algo() {
         printf("Matrice initiale : \n");
         print_quarter_matrice(mat_prec,TAILLE_MATRICE);        
     }
-    if (ETAPE == 0) {
+    if (ETAPE == 0 ) {
         for(int i = 0; i < NB_EXE; i++) {
             diffuser_chaleur_x(mat_courante,mat_prec,TAILLE_MATRICE);
             diffuser_chaleur_y(mat_prec,mat_courante,TAILLE_MATRICE);
             chauffer_zone_centrale(mat_prec,n);
         }
     } else if (ETAPE == 1) {
-            printf("NB_THREADS = %d\n", NB_THREADS);
-            float pas = 1/ (float) NB_THREADS;
-            printf("Le pas est ici : %f\n", pas);
-            for(float i=0; i<1; i=i+pas) {
-                printf("i = %f\n", i);
-                printf("On va de %f à %f !\n",TAILLE_MATRICE*i,  TAILLE_MATRICE*(i+pas) );
-                diffuser_chaleur_x_ij(mat_courante,mat_prec,TAILLE_MATRICE*i, TAILLE_MATRICE*(i+pas));
-                diffuser_chaleur_y_ij(mat_prec, mat_courante,TAILLE_MATRICE*i, TAILLE_MATRICE*(i+pas));    
+        printf("t = %d\n", t);
+        // printf("NB_THREADS = %d\n", NB_THREADS);
+        // Pas = 1/ (2^t)
+        float pas = (1 << t);
+        pas = 1/pas;
+        // printf("Le pas est ici : %f\n", pas);
+
+        for(float i=0; i<1; i=i+pas) {
+            for (float j=0; j<1; j=j+pas) {
+                printf("i va de %f à %f,      j va de %f à %f\n",i,i+pas,j,j+pas);
+                diffuser_chaleur_x_ij(mat_courante,mat_prec,TAILLE_MATRICE*i, TAILLE_MATRICE*(i+pas),TAILLE_MATRICE*j, TAILLE_MATRICE*(j+pas));
+                diffuser_chaleur_y_ij(mat_prec, mat_courante,TAILLE_MATRICE*i, TAILLE_MATRICE*(i+pas),TAILLE_MATRICE*j, TAILLE_MATRICE*(j+pas));
                 chauffer_zone_centrale(mat_prec,n);
-            }
+            }            
+        }
         
     }
     if (AFF) {
@@ -204,12 +209,14 @@ void lancer_selon_options() {
         threads = tempThreads;
         while (*threads++)
         {
+            t = (*(threads-1)) - '0';
+
             if ((*(threads-1)) - '0' == 0)
                 NB_THREADS = 1;
             else
                 NB_THREADS = 2<<((*(threads-1)) - '0');
 
-            printf("   Nombre de threads... %d\n",NB_THREADS);
+            // printf("   Nombre de threads... %d\n",NB_THREADS);
             
             // Parcours des tailles de matrice
             tailles=tempTailles;
@@ -220,7 +227,7 @@ void lancer_selon_options() {
                 // Nombre de cellules par thread
                 NB_CASES_BLOC = (TAILLE_MATRICE * TAILLE_MATRICE) / NB_THREADS;
 
-                printf("   Nombre de cellule par thread... %d\n",NB_CASES_BLOC);
+                // printf("   Nombre de cellule par thread... %d\n",NB_CASES_BLOC);
 
                 // On a bien initialise ETAPES, NB_THREADS et TAILLE_MATRICE.
                 // On lance le programme pour chacunes des configurations.

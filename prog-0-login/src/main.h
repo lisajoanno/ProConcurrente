@@ -6,6 +6,7 @@
 
 /******************* PARAMETRES DU SYSTEME ****************************/
 
+int t = 0;
 // Taille de la matrice courante entree par l'utilisateur (taille = (n+4)**2)
 int n;
 // Taille de la matrice courante
