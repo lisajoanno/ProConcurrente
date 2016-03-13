@@ -53,6 +53,14 @@ char* tailles;
 MAT mat_prec, mat_courante;
 
 
+struct ThreadParam {
+    int x_init;
+    int y_init;
+    int x_fin;
+    int y_fin;
+};
+
+
 // Lance l'algorithme avec les configurations actuelles
 void lancer_algo();
 // Lance l'algorithme en stockant les temps CPU
@@ -76,12 +84,6 @@ pthread_barrier_t barrier;
 pthread_barrier_t barrierX;
 pthread_barrier_t barrierY;
 
-struct ThreadParam {
-    int x_init;
-    int y_init;
-    int x_fin;
-    int y_fin;
-};
 
 void *thread(void *attr);
 void init_threads();
