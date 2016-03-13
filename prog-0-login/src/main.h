@@ -53,12 +53,12 @@ char* tailles;
 MAT mat_prec, mat_courante;
 
 
-typedef struct ThreadParam {
+typedef struct {
     int x_init;
     int y_init;
     int x_fin;
     int y_fin;
-};
+} ThreadParam;
 
 
 // Lance l'algorithme avec les configurations actuelles

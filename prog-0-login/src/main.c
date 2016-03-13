@@ -307,7 +307,7 @@ void init_threads()
 {
     int thread = 1<<(2*NB_THREADS);
     pthread_t th[thread];
-    Thread_Param par[thread];
+    ThreadParam par[thread];
 
 
     int pas = TAILLE_MATRICE;
