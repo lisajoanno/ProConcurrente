@@ -44,16 +44,16 @@ void diffuser_chaleur_y(MAT m1, MAT m2, int taille) {
 /**
  * Propagation de la chaleur selon l'axe x.
  * */
-void diffuser_chaleur_x_ij(MAT m1, MAT m2, int a, int b, int pas) {
-    for(int i = a; i < (a+pas); i++) {
-        for(int j = b; j < (b+pas); j++) {
-            if (j == b) {
-                m1[i][j] = ( (4 * m2[i][j]) + (m2[i][j + 1]) )/H;
-            } else if (j == b+pas) {
-                m1[i][j] = ( (m2[i][j - 1]) + (4 * m2[i][j]) )/H;
-            } else {  
+void diffuser_chaleur_x_ij(MAT m1, MAT m2, int i_in, int i_fi, int j_in, int j_fi) {
+    for(int i = i_in; i < i_fi; i++) {
+        for(int j = j_in; j < j_fi; j++) {
+            // if (j == j_in) {
+            //     m1[i][j] = ( (4 * m2[i][j]) + (m2[i][j + 1]) )/H;
+            // } else if (j == i_fi - 1) {
+            //     m1[i][j] = ( (m2[i][j - 1]) + (4 * m2[i][j]) )/H;
+            // } else {  
                 m1[i][j] = ( (m2[i][j - 1]) + (4 * m2[i][j]) + (m2[i][j + 1]) )/H;
-            }
+            // }
         }
     }
 }
@@ -62,12 +62,12 @@ void diffuser_chaleur_x_ij(MAT m1, MAT m2, int a, int b, int pas) {
 /**
  * Propagation de la chaleur selon l'axe y.
  * */
-void diffuser_chaleur_y_ij(MAT m1, MAT m2, int a, int b, int pas) {
-    for(int j = a; j < (a+pas); j++) {
-        for(int i = b; i < (b+pas); i++) {
-            if (i == b) {
+void diffuser_chaleur_y_ij(MAT m1, MAT m2, int i_in, int i_fi, int j_in, int j_fi) {
+    for(int j = j_in; j < j_fi; j++) {
+        for(int i = i_in; i < i_fi; i++) {
+            if (i == i_in) {
                 m1[i][j] = ( (4 * m2[i][j]) + (m2[i + 1][j]) )/H;
-            } else if (i == b+pas-1) {
+            } else if (i == i_fi - 1) {
                 m1[i][j] = ( (m2[i - 1][j]) + (4 * m2[i][j]) )/H;
             } else {
                 m1[i][j] = ( (m2[i - 1][j]) + (4 * m2[i][j]) + (m2[i + 1][j]) )/H;
