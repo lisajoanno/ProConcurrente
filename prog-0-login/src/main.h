@@ -34,10 +34,7 @@ int NB_EXE;
 // Etape du programme a executer
 int ETAPE; 
 // Nombre de threads a creer
-int NB_THREADS; 
-// Nombre de cellules associées à une thread
-int NB_CASES_BLOC;
-
+int NB_THREADS;
 
 // Chaines de caracteres contenant les options de l'utilisateur.
 // etapes, par exemple : "012345"
@@ -60,6 +57,7 @@ typedef struct ThreadParam {
     int y_init;
     int x_fin;
     int y_fin;
+    int n;
 } ThreadParam;
 
 
@@ -88,6 +86,6 @@ pthread_barrier_t barrierY;
 
 
 void *thread(void *attr);
-void init_threads(MAT mat_courante, MAT mat_prec);
+void init_threads(MAT mat_courante, MAT mat_prec, int n);
 
 #endif

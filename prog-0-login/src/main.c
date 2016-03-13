@@ -25,8 +25,8 @@
  * Lancement de l'algorithme avec deux matrices.
  * */
 void lancer_algo() {
-    MAT mat_courante = init(TAILLE_MATRICE,n);
-    MAT mat_prec = init(TAILLE_MATRICE,n);
+    MAT mat_courante = init(TAILLE_MATRICE, n);
+    MAT mat_prec = init(TAILLE_MATRICE, n);
     if (AFF) {
         printf("Matrice initiale : \n");
         print_quarter_matrice(mat_prec,TAILLE_MATRICE);        
@@ -36,17 +36,12 @@ void lancer_algo() {
         for(i = 0; i < NB_EXE; i++) {
             diffuser_chaleur_x(mat_courante,mat_prec,TAILLE_MATRICE);
             diffuser_chaleur_y(mat_prec,mat_courante,TAILLE_MATRICE);
-            chauffer_zone_centrale(mat_prec,n);
+            chauffer_zone_centrale(mat_prec, n);
         }
     } else if (ETAPE == 1) {
-        printf("t = %d\n", t);
         int i;
         for(i = 0; i < NB_EXE; i++) {
-                /*diffuser_chaleur_x_ij(mat_courante, mat_prec, 0, TAILLE_MATRICE, 0, TAILLE_MATRICE);
-                diffuser_chaleur_y_ij(mat_prec, mat_courante, 0, TAILLE_MATRICE, 0, TAILLE_MATRICE);
-                chauffer_zone_centrale(mat_prec,n);*/
-                init_threads(mat_courante, mat_prec);
-                   
+                init_threads(mat_courante, mat_prec, n);
         }
         
     }
@@ -208,24 +203,14 @@ void lancer_selon_options() {
         while (*threads++)
         {
             t = (*(threads-1)) - '0';
-
-            if ((*(threads-1)) - '0' == 0)
-                NB_THREADS = 1;
-            else
-                NB_THREADS = 2<<((*(threads-1)) - '0');
-
-            // printf("   Nombre de threads... %d\n",NB_THREADS);
+            
+            NB_THREADS = 1 << (2 * t);
             
             // Parcours des tailles de matrice
             tailles=tempTailles;
             while (*tailles++) {
                 n = ((*(tailles-1)) - '0' )+4;
                 TAILLE_MATRICE = (int) 1 << n;
-
-                // Nombre de cellules par thread
-                NB_CASES_BLOC = (TAILLE_MATRICE * TAILLE_MATRICE) / NB_THREADS;
-
-                // printf("   Nombre de cellule par thread... %d\n",NB_CASES_BLOC);
 
                 // On a bien initialise ETAPES, NB_THREADS et TAILLE_MATRICE.
                 // On lance le programme pour chacunes des configurations.
@@ -298,7 +283,8 @@ void *thread(void *attr)
         // Attente des autres threads avant prochaine iteration
         pthread_barrier_wait (&barrierY);
 
-        //chauffer_zone_centrale(mat_prec, n);
+        chauffer_zone_centrale(p->mat_prec, p->n);
+
         // Synchronisation finale
         pthread_barrier_wait(&barrier);
     }
@@ -306,11 +292,13 @@ void *thread(void *attr)
     pthread_exit(NULL);
 }
 
-void init_threads(MAT mat_courante, MAT mat_prec)
+void init_threads(MAT mat_courante, MAT mat_prec, int n)
 {
-    int thre = 1 << (2 * t);
-    pthread_t th[thre];
-    ThreadParam par[thre];
+    pthread_t th[NB_THREADS];
+    ThreadParam par[NB_THREADS];
+
+    if (NB_THREADS > (TAILLE_MATRICE * TAILLE_MATRICE))
+        exit(0);
 
     int pas = TAILLE_MATRICE;
     pas = TAILLE_MATRICE / (1 << t);
@@ -318,15 +306,15 @@ void init_threads(MAT mat_courante, MAT mat_prec)
     int id = 0;
     int i = 0;
 
-    if(pthread_barrier_init(&barrierX, NULL, thre))
+    if(pthread_barrier_init(&barrierX, NULL, NB_THREADS))
     {
         printf("Impossible de créer la barriere\n");
     }
-    if(pthread_barrier_init(&barrierY, NULL, thre))
+    if(pthread_barrier_init(&barrierY, NULL, NB_THREADS))
     {
         printf("Impossible de créer la barriere\n");
     }     
-    if(pthread_barrier_init(&barrier, NULL, thre))
+    if(pthread_barrier_init(&barrier, NULL, NB_THREADS))
     {
         printf("Impossible de créer la barriere\n");
     }
@@ -338,6 +326,7 @@ void init_threads(MAT mat_courante, MAT mat_prec)
         int j = 0;
         for (j = 0; j < TAILLE_MATRICE; j = j + pas) {
             
+            par[id].n = n;
             par[id].mat_prec = mat_prec;
             par[id].mat_courante = mat_courante;
             par[id].x_init = i;
@@ -354,6 +343,11 @@ void init_threads(MAT mat_courante, MAT mat_prec)
             id++;
 
         }
+    }
+
+    int k = 0;
+    for (k = 0; k < NB_THREADS; k++){
+        pthread_join(th[k],NULL);
     }
 
     if(pthread_barrier_destroy(&barrierX)){
