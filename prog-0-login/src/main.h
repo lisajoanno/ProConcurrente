@@ -54,6 +54,8 @@ MAT mat_prec, mat_courante;
 
 
 typedef struct ThreadParam {
+	MAT mat_courante;
+	MAT mat_prec;
     int x_init;
     int y_init;
     int x_fin;
@@ -86,7 +88,6 @@ pthread_barrier_t barrierY;
 
 
 void *thread(void *attr);
-void init_threads();
-void init_thread();
+void init_threads(MAT mat_courante, MAT mat_prec);
 
 #endif

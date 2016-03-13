@@ -45,7 +45,7 @@ void lancer_algo() {
                 /*diffuser_chaleur_x_ij(mat_courante, mat_prec, 0, TAILLE_MATRICE, 0, TAILLE_MATRICE);
                 diffuser_chaleur_y_ij(mat_prec, mat_courante, 0, TAILLE_MATRICE, 0, TAILLE_MATRICE);
                 chauffer_zone_centrale(mat_prec,n);*/
-                init_threads();
+                init_threads(mat_courante, mat_prec);
                    
         }
         
@@ -287,14 +287,15 @@ void capter_options(int argc, char *argv[]) {
 
 void *thread(void *attr)
 {
+    printf("Je suis une thread !\n");
     ThreadParam *p = (ThreadParam*) attr;
     int i;
     for(i = 0; i < NB_EXE; i++) 
     {   
-        diffuser_chaleur_x_ij(mat_courante, mat_prec, p->x_init, p->x_fin, p->y_init, p->y_fin);
+        diffuser_chaleur_x_ij(p->mat_courante, p->mat_prec, p->x_init, p->x_fin, p->y_init, p->y_fin);
         // Attente des autres threads avant de commencer la propagation selon y
         pthread_barrier_wait (&barrierX);
-        diffuser_chaleur_y_ij(mat_courante, mat_prec, p->x_init, p->x_fin, p->y_init, p->y_fin);
+        diffuser_chaleur_y_ij(p->mat_courante, p->mat_prec, p->x_init, p->x_fin, p->y_init, p->y_fin);
         // Attente des autres threads avant prochaine iteration
         pthread_barrier_wait (&barrierY);
 
@@ -306,7 +307,7 @@ void *thread(void *attr)
     pthread_exit(NULL);
 }
 
-void init_threads()
+void init_threads(MAT mat_courante, MAT mat_prec)
 {
     int thre = 1 << (2 * t);
     pthread_t th[thre];
@@ -318,7 +319,6 @@ void init_threads()
     int id = 0;
     int i = 0;
 
-    printf("pas : %d\n", pas );
     if(pthread_barrier_init(&barrierX, NULL, thre))
     {
         printf("Impossible de créer la barriere\n");
@@ -339,6 +339,8 @@ void init_threads()
         int j = 0;
         for (j = 0; j < TAILLE_MATRICE; j = j + pas) {
             
+            par[id].mat_prec = mat_prec;
+            par[id].mat_courante = mat_courante;
             par[id].x_init = i;
             par[id].y_init = j;
             par[id].x_fin = i + pas;
