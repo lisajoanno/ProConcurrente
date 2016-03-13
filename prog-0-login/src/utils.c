@@ -17,12 +17,14 @@ MAT init(int taille, int n) {
         exit(EXIT_FAILURE);        
     }
     // Initialisation de la matrice a 0.
-    for (int i =0; i<taille; i++) {
+    int i;
+    for (i =0; i<taille; i++) {
     	if ((m[i] = (float *) malloc(sizeof(float) * taille)) == NULL) {
             fprintf(stderr,"Allocation impossible dans init.\n");
             exit(EXIT_FAILURE);  
         }
-        for (int j=0; j<taille; j++) {
+        int j;
+        for (j=0; j<taille; j++) {
             m[i][j] = 0;
         }
     }
@@ -38,7 +40,8 @@ MAT init(int taille, int n) {
  * Libere la memoire de la matrice placée en paramètre.
  * */
 void free_mat(MAT m, int taille) {
-    for (int i =0; i<taille; i++) {
+    int i;
+    for (i =0; i<taille; i++) {
         free((void *) m[i]);
     }
     free(m);
@@ -52,8 +55,10 @@ void free_mat(MAT m, int taille) {
 void chauffer_zone_centrale(MAT m, int n) {
     int idMin = (1<<(n-1)) - (1<<(n-4));
     int idMax = (1<<(n-1)) + (1<<(n-4));
-    for (int i =  idMin ; i < idMax  ; i++) {
-        for (int j =  idMin  ; j <  idMax ; j++) {
+    int i;
+    for (i =  idMin ; i < idMax  ; i++) {
+        int j;
+        for (j =  idMin  ; j <  idMax ; j++) {
             m[i][j] = TEMP_CHAUD;
         }
     }    
@@ -74,8 +79,10 @@ void afficher_options_synthetiques(int taille, int exes) {
  * Affiche la matrice en parametre.
  * */
 void print_matrice(MAT m, int taille) {
-    for (int i =0; i<taille; i++) {
-        for (int j=0; j<taille; j++) {
+    int i;
+    for (i =0; i<taille; i++) {
+        int j;
+        for (j=0; j<taille; j++) {
             printf("| %.1f ",m[i][j]);
         }
         printf("|\n");
@@ -88,8 +95,10 @@ void print_matrice(MAT m, int taille) {
  * Affiche le quart superieur gauche de la matrice en parametre.
  * */
 void print_quarter_matrice(MAT m, int taille) {
-    for (int i =0; i<taille/2; i++) {
-        for (int j=0; j<taille/2; j++) {
+    int i;
+    for (i =0; i<taille/2; i++) {
+        int j;
+        for (j=0; j<taille/2; j++) {
             printf("| %.1f ",m[i][j]);
         }
         printf("|\n");

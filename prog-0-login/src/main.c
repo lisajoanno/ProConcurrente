@@ -32,15 +32,16 @@ void lancer_algo() {
         print_quarter_matrice(mat_prec,TAILLE_MATRICE);        
     }
     if (ETAPE == 0 ) {
-        for(int i = 0; i < NB_EXE; i++) {
+        int i;
+        for(i = 0; i < NB_EXE; i++) {
             diffuser_chaleur_x(mat_courante,mat_prec,TAILLE_MATRICE);
             diffuser_chaleur_y(mat_prec,mat_courante,TAILLE_MATRICE);
             chauffer_zone_centrale(mat_prec,n);
         }
     } else if (ETAPE == 1) {
         printf("t = %d\n", t);
-
-        for(int i = 0; i < NB_EXE; i++) {
+        int i;
+        for(i = 0; i < NB_EXE; i++) {
                 /*diffuser_chaleur_x_ij(mat_courante, mat_prec, 0, TAILLE_MATRICE, 0, TAILLE_MATRICE);
                 diffuser_chaleur_y_ij(mat_prec, mat_courante, 0, TAILLE_MATRICE, 0, TAILLE_MATRICE);
                 chauffer_zone_centrale(mat_prec,n);*/
@@ -72,7 +73,8 @@ void calculer_temps_cpu() {
     float moy = 0.0;
     clock_t temps_debut, temps_fin;
     // On lance les 10 executions.
-    for (int i = 0; i < 10; i++) {
+    int i;
+    for (i = 0; i < 10; i++) {
         temps_debut = clock();
         lancer_algo();
         temps_fin = clock();
@@ -80,7 +82,7 @@ void calculer_temps_cpu() {
         temps[i] = (float)(temps_fin - temps_debut)/CLOCKS_PER_SEC;
     }
     // On determine le min et le max dans le tableau.
-    for (int i = 0; i < taille_table; i++) {
+    for (i = 0; i < taille_table; i++) {
         if(max < temps[i]) {
             max = temps[i];
         }
@@ -89,7 +91,7 @@ void calculer_temps_cpu() {
         }
     }
     // On fait la moyenne des temps restants.
-    for (int i = 0; i < taille_table; i++) {
+    for (i = 0; i < taille_table; i++) {
         if(temps[i] != min && temps[i] != max) {
             moy += temps[i];
         }
@@ -113,7 +115,9 @@ void calculer_temps_user() {
     // Temps au debut de l'execution, temps a la fin.
     double t_begin, t_end;
     // 10 executions du programme :
-    for (int i=0; i<10; i++) {
+
+    int i;
+    for (i=0; i<10; i++) {
         t_begin = get_process_time();
         lancer_algo();
         t_end = get_process_time();
@@ -121,7 +125,7 @@ void calculer_temps_user() {
     }
     double max, min, moy;
     // On determine le min et le max dans le tableau.
-    for (int i = 0; i < 10; i++) {
+    for (i = 0; i < 10; i++) {
         if(max < tabTimes[i]) {
             max = tabTimes[i];
         }
@@ -130,7 +134,7 @@ void calculer_temps_user() {
         }
     }
     // On fait la moyenne des temps restants.
-    for (int i = 0; i < 10; i++) {
+    for (i = 0; i < 10; i++) {
         if(tabTimes[i] != min && tabTimes[i] != max) {
             moy += tabTimes[i];
         }

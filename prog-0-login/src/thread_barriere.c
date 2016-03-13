@@ -3,8 +3,8 @@
 void *thread(void *attr)
 {
     struct thread_param *p = (struct thread_param*)(thread_param);
-
-    for(int i = 0; i < NB_EXE; i++) {
+    int i;
+    for(i = 0; i < NB_EXE; i++) {
 	    diffuser_chaleur_x_ij(mat_courante, mat_prec, p->x_init, p->x_fin, p->y_init, p->y_fin);
 	    // Attente des autres threads avant de commencer la propagation selon y
 	    pthread_barrier_wait (&barrierX);
@@ -29,12 +29,13 @@ void init_threads()
     pas = TAILLE_MATRICE / (1 << nb_thread);
 
     int id = 0;
-
-	for (int i = 0; i < N; i = i + (TAILLE_MATRICE/2)) {
+    int i;
+	for (i = 0; i < N; i = i + (TAILLE_MATRICE/2)) {
 
 		// Initialisation des coordonnées de départ et d'arrivée de
 		// chaque thread
-        for (int j = 0; j < N; j = j + (TAILLE_MATRICE/2)) {
+        int j;
+        for (j = 0; j < N; j = j + (TAILLE_MATRICE/2)) {
 
         par[id].x_init = i;
         par[id].y_init = j;
