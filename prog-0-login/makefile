@@ -1,5 +1,5 @@
-CC = gcc
-CFLAGS = -Wall -Wextra -pthread
+CC = gcc 
+CFLAGS = -Wall -Wextra
 EXEC_NAME = main
 # OBJ_FILES = diffusion_chaleur.o utils.o main.o 
 
@@ -17,7 +17,7 @@ create_bin :
 	mkdir -p $(BIN_DIR)
 
 $(EXEC_NAME) : $(BIN_DIR)/main.o $(BIN_DIR)/diffusion_chaleur.o $(BIN_DIR)/utils.o
-	$(CC) -o $(EXEC_NAME) $(BIN_DIR)/main.o $(BIN_DIR)/diffusion_chaleur.o $(BIN_DIR)/utils.o
+	$(CC) -o $(EXEC_NAME) $(BIN_DIR)/main.o $(BIN_DIR)/diffusion_chaleur.o $(BIN_DIR)/utils.o -lpthread 
 
 $(BIN_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -o $@ -c $<

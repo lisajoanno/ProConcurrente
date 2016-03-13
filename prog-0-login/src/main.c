@@ -286,7 +286,7 @@ void capter_options(int argc, char *argv[]) {
 
 void *thread(void *attr)
 {
-    ThreadParam *p = attr;
+    ThreadParam *p = (ThreadParam*) attr;
     int i;
     for(i = 0; i < NB_EXE; i++) {   
         diffuser_chaleur_x_ij(mat_courante, mat_prec, p->x_init, p->x_fin, p->y_init, p->y_fin);
@@ -300,7 +300,7 @@ void *thread(void *attr)
     }
 
     // Synchronisation finale
-    pthread_barrier_wait (&barrier);
+    pthread_barrier_wait(&barrier);
 }
 
 void init_threads()
