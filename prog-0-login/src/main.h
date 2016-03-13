@@ -53,7 +53,7 @@ char* tailles;
 MAT mat_prec, mat_courante;
 
 
-typedef struct {
+typedef struct ThreadParam {
     int x_init;
     int y_init;
     int x_fin;

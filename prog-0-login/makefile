@@ -16,8 +16,8 @@ clean :
 create_bin : 
 	mkdir -p $(BIN_DIR)
 
-$(EXEC_NAME) : $(BIN_DIR)/main.o $(BIN_DIR)/diffusion_chaleur.o $(BIN_DIR)/utils.o $(BIN_DIR)/thread_barriere.o
-	$(CC) -o $(EXEC_NAME) $(BIN_DIR)/main.o $(BIN_DIR)/diffusion_chaleur.o $(BIN_DIR)/utils.o $(BIN_DIR)/thread_barriere.o
+$(EXEC_NAME) : $(BIN_DIR)/main.o $(BIN_DIR)/diffusion_chaleur.o $(BIN_DIR)/utils.o
+	$(CC) -o $(EXEC_NAME) $(BIN_DIR)/main.o $(BIN_DIR)/diffusion_chaleur.o $(BIN_DIR)/utils.o
 
 $(BIN_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -o $@ -c $<

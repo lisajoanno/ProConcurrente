@@ -286,9 +286,9 @@ void capter_options(int argc, char *argv[]) {
 
 void *thread(void *attr)
 {
-    struct thread_param *p = (struct thread_param*)(attr);
+    ThreadParam *p = attr;
     int i;
-    for(i = 0; i < NB_EXE; i++) {
+    for(i = 0; i < NB_EXE; i++) {   
         diffuser_chaleur_x_ij(mat_courante, mat_prec, p->x_init, p->x_fin, p->y_init, p->y_fin);
         // Attente des autres threads avant de commencer la propagation selon y
         pthread_barrier_wait (&barrierX);
@@ -309,32 +309,31 @@ void init_threads()
     pthread_t th[thread];
     ThreadParam par[thread];
 
-
     int pas = TAILLE_MATRICE;
     pas = TAILLE_MATRICE / (1 << NB_THREADS);
 
     int id = 0;
-    int i;
+    int i = 0;
     for (i = 0; i < TAILLE_MATRICE; i = i + pas) {
 
         // Initialisation des coordonnées de départ et d'arrivée de
         // chaque thread
-        int j;
+        int j = 0;
         for (j = 0; j < TAILLE_MATRICE; j = j + pas) {
 
-        par[id].x_init = i;
-        par[id].y_init = j;
-        par[id].x_fin = i + pas;
-        par[id].y_fin = j + pas;
+            par[id].x_init = i;
+            par[id].y_init = j;
+            par[id].x_fin = i + pas;
+            par[id].y_fin = j + pas;
 
-        // Creation de la thread
-        if(pthread_create(&th[id], NULL, thread, (void*)&p[id]))
-        {
-            printf("Impossible de creer la thread\n");
-            return -1;
-        }
+            // Creation de la thread
+            if(pthread_create(&th[id], NULL, thread, &par[id]))
+            {
+                printf("Impossible de creer la thread\n");
+                return -1;
+            }
 
-        id++;
+            id++;
 
         }
     }
