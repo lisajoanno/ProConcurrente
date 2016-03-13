@@ -287,7 +287,6 @@ void capter_options(int argc, char *argv[]) {
 
 void *thread(void *attr)
 {
-    printf("Je suis une thread !\n");
     ThreadParam *p = (ThreadParam*) attr;
     int i;
     for(i = 0; i < NB_EXE; i++) 
@@ -295,11 +294,11 @@ void *thread(void *attr)
         diffuser_chaleur_x_ij(p->mat_courante, p->mat_prec, p->x_init, p->x_fin, p->y_init, p->y_fin);
         // Attente des autres threads avant de commencer la propagation selon y
         pthread_barrier_wait (&barrierX);
-        diffuser_chaleur_y_ij(p->mat_courante, p->mat_prec, p->x_init, p->x_fin, p->y_init, p->y_fin);
+        diffuser_chaleur_y_ij(p->mat_prec, p->mat_courante, p->x_init, p->x_fin, p->y_init, p->y_fin);
         // Attente des autres threads avant prochaine iteration
         pthread_barrier_wait (&barrierY);
 
-        chauffer_zone_centrale(mat_prec, n);
+        //chauffer_zone_centrale(mat_prec, n);
         // Synchronisation finale
         pthread_barrier_wait(&barrier);
     }
