@@ -41,7 +41,7 @@ void lancer_algo() {
     } else if (ETAPE == 1) {
         int i;
         for(i = 0; i < NB_EXE; i++) {
-                init_threads(mat_courante, mat_prec, n);
+                init_threads(mat_courante, mat_prec, n, TAILLE_MATRICE, NB_THREADS, t);
         }
         
     }
@@ -269,97 +269,6 @@ void capter_options(int argc, char *argv[]) {
     }
 }
 
-
-void *thread(void *attr)
-{
-    ThreadParam *p = (ThreadParam*) attr;
-    int i;
-    for(i = 0; i < NB_EXE; i++) 
-    {   
-        diffuser_chaleur_x_ij(p->mat_courante, p->mat_prec, p->x_init, p->x_fin, p->y_init, p->y_fin,TAILLE_MATRICE);
-        // Attente des autres threads avant de commencer la propagation selon y
-        pthread_barrier_wait (&barrierX);
-        diffuser_chaleur_y_ij(p->mat_prec, p->mat_courante, p->x_init, p->x_fin, p->y_init, p->y_fin,TAILLE_MATRICE);
-        // Attente des autres threads avant prochaine iteration
-        pthread_barrier_wait (&barrierY);
-
-        chauffer_zone_centrale(p->mat_prec, p->n);
-
-        // Synchronisation finale
-        pthread_barrier_wait(&barrier);
-    }
-    
-    pthread_exit(NULL);
-}
-
-void init_threads(MAT mat_courante, MAT mat_prec, int n)
-{
-    pthread_t th[NB_THREADS];
-    ThreadParam par[NB_THREADS];
-
-    if (NB_THREADS > (TAILLE_MATRICE * TAILLE_MATRICE))
-        exit(0);
-
-    int pas = TAILLE_MATRICE;
-    pas = TAILLE_MATRICE / (1 << t);
-
-    int id = 0;
-    int i = 0;
-
-    if(pthread_barrier_init(&barrierX, NULL, NB_THREADS))
-    {
-        printf("Impossible de créer la barriere\n");
-    }
-    if(pthread_barrier_init(&barrierY, NULL, NB_THREADS))
-    {
-        printf("Impossible de créer la barriere\n");
-    }     
-    if(pthread_barrier_init(&barrier, NULL, NB_THREADS))
-    {
-        printf("Impossible de créer la barriere\n");
-    }
-
-    for (i = 0; i < TAILLE_MATRICE; i = i + pas) {
-
-        // Initialisation des coordonnées de départ et d'arrivée de
-        // chaque thread
-        int j = 0;
-        for (j = 0; j < TAILLE_MATRICE; j = j + pas) {
-            
-            par[id].n = n;
-            par[id].mat_prec = mat_prec;
-            par[id].mat_courante = mat_courante;
-            par[id].x_init = i;
-            par[id].y_init = j;
-            par[id].x_fin = i + pas;
-            par[id].y_fin = j + pas;
-            // Creation de la thread
-            if(pthread_create(&th[id], NULL, thread, (void*)&par[id]))
-            {
-                printf("Impossible de creer la thread\n");
-            }
-            
-            id++;
-
-        }
-    }
-
-    int k = 0;
-    for (k = 0; k < NB_THREADS; k++){
-        pthread_join(th[k],NULL);
-    }
-
-    if(pthread_barrier_destroy(&barrierX)){
-        perror("Destruction de la barriere impossible");
-    }
-    if(pthread_barrier_destroy(&barrierY)){
-        perror("Destruction de la barriere impossible");
-    }
-    if(pthread_barrier_destroy(&barrier)){
-        perror("Destruction de la barriere impossible");
-    }
-
-}
 
 
 

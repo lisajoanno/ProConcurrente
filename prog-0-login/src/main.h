@@ -13,6 +13,8 @@
 #include <fcntl.h>
 #include <string.h>
 
+#include "thread_barriere.h"
+
 /******************* PARAMETRES DU SYSTEME ****************************/
 
 int t = 0;
@@ -49,18 +51,6 @@ char* tailles;
 // On definit deux matrices : celle de l'etape n (mat_courante) et celle de l'etape n-1 (mat_prec)
 MAT mat_prec, mat_courante;
 
-
-typedef struct ThreadParam {
-	MAT mat_courante;
-	MAT mat_prec;
-    int x_init;
-    int y_init;
-    int x_fin;
-    int y_fin;
-    int n;
-} ThreadParam;
-
-
 // Lance l'algorithme avec les configurations actuelles
 void lancer_algo();
 // Lance l'algorithme en stockant les temps CPU
@@ -78,14 +68,5 @@ void lancer_selon_options();
 void capter_options(int argc, char *argv[]);
 // Main
 int main(int argc, char *argv[]);
-
-// A METTRE DANS THREAD.H
-pthread_barrier_t barrier;
-pthread_barrier_t barrierX;
-pthread_barrier_t barrierY;
-
-
-void *thread(void *attr);
-void init_threads(MAT mat_courante, MAT mat_prec, int n);
 
 #endif
