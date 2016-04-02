@@ -29,7 +29,7 @@ void lancer_algo() {
     MAT mat_prec = init(TAILLE_MATRICE, n);
     if (AFF) {
         printf("Matrice initiale : \n");
-        print_quarter_matrice(mat_prec,TAILLE_MATRICE);        
+        print_matrice(mat_prec,TAILLE_MATRICE);        
     }
     if (ETAPE == 0 ) {
         int i;
@@ -47,7 +47,7 @@ void lancer_algo() {
     }
     if (AFF) {
         printf("Matrice finale : \n");
-        print_quarter_matrice(mat_prec,TAILLE_MATRICE);        
+        print_matrice(mat_prec,TAILLE_MATRICE);        
     }
     free_mat(mat_courante,TAILLE_MATRICE);
     free_mat(mat_prec,TAILLE_MATRICE);
@@ -276,10 +276,10 @@ void *thread(void *attr)
     int i;
     for(i = 0; i < NB_EXE; i++) 
     {   
-        diffuser_chaleur_x_ij(p->mat_courante, p->mat_prec, p->x_init, p->x_fin, p->y_init, p->y_fin);
+        diffuser_chaleur_x_ij(p->mat_courante, p->mat_prec, p->x_init, p->x_fin, p->y_init, p->y_fin,TAILLE_MATRICE);
         // Attente des autres threads avant de commencer la propagation selon y
         pthread_barrier_wait (&barrierX);
-        diffuser_chaleur_y_ij(p->mat_prec, p->mat_courante, p->x_init, p->x_fin, p->y_init, p->y_fin);
+        diffuser_chaleur_y_ij(p->mat_prec, p->mat_courante, p->x_init, p->x_fin, p->y_init, p->y_fin,TAILLE_MATRICE);
         // Attente des autres threads avant prochaine iteration
         pthread_barrier_wait (&barrierY);
 
@@ -333,7 +333,6 @@ void init_threads(MAT mat_courante, MAT mat_prec, int n)
             par[id].y_init = j;
             par[id].x_fin = i + pas;
             par[id].y_fin = j + pas;
-
             // Creation de la thread
             if(pthread_create(&th[id], NULL, thread, (void*)&par[id]))
             {
