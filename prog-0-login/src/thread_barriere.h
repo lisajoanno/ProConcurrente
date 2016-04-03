@@ -11,12 +11,19 @@
 #include <string.h>
 #include "utils.h"
 #include "diffusion_chaleur.h"
+#include "barriere.h"
 
 // Declaration des barrieres posix
 pthread_barrier_t barrier;
 pthread_barrier_t barrierX;
 pthread_barrier_t barrierY;
 
+// Declaration des barrieres personalisees
+custom_barriere c_barrier;
+custom_barriere c_barrierX;
+custom_barriere c_barrierY;
+
+// Parametres pour les threads
 typedef struct ThreadParam {
 	MAT mat_courante;
 	MAT mat_prec;
@@ -26,9 +33,13 @@ typedef struct ThreadParam {
     int y_fin;
     int n;
     int taille;
+    int custom_barriere; // Le booleen pour savoir si on utilise ou non notre version des barrieres
 } ThreadParam;
 
+// Declaration de thread
 void *thread(void *attr);
-void init_threads(MAT mat_courante, MAT mat_prec, int n, int taille, int nb_thread, int t);
+
+// Creation des threads
+void init_threads(MAT mat_courante, MAT mat_prec, int n, int taille, int nb_thread, int t, int custom_barriere);
 
 #endif

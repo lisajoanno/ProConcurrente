@@ -9,6 +9,10 @@
 #ifndef _BARRIERE_H_
 #define _BARRIERE_H_
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+
 // Structure de notre barriere
 typedef struct {
 	unsigned nb_thread;
@@ -24,6 +28,6 @@ void detruire_barriere(custom_barriere* barriere);
 void init_barriere();
 
 // Simule l'action 'wait' de la barriere posix
-void barriere_wait();
+int barriere_wait();
 
 #endif

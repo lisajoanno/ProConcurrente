@@ -41,9 +41,13 @@ void lancer_algo() {
     } else if (ETAPE == 1) {
         int i;
         for(i = 0; i < NB_EXE; i++) {
-                init_threads(mat_courante, mat_prec, n, TAILLE_MATRICE, NB_THREADS, t);
+                init_threads(mat_courante, mat_prec, n, TAILLE_MATRICE, NB_THREADS, t, 0);
         }
-        
+    } else if (ETAPE == 2) {
+        int i;
+        for(i = 0; i < NB_EXE; i++) {
+                init_threads(mat_courante, mat_prec, n, TAILLE_MATRICE, NB_THREADS, t, 1);
+        }
     }
     if (AFF) {
         printf("Matrice finale : \n");
