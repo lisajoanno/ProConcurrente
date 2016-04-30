@@ -1,3 +1,9 @@
+/**
+ *
+ * Auteur : Arnaud Garnier
+ *
+ */
+
 #ifndef _THREAD_BARRIERE_H
 #define _THREAD_BARRIERE_H
 
@@ -16,17 +22,15 @@
 // Declaration des barrieres posix
 pthread_barrier_t barrier;
 pthread_barrier_t barrierX;
-pthread_barrier_t barrierY;
 
 // Declaration des barrieres personalisees
 custom_barriere c_barrier;
 custom_barriere c_barrierX;
-custom_barriere c_barrierY;
 
 // Parametres pour les threads
 typedef struct ThreadParam {
-	MAT mat_courante;
-	MAT mat_prec;
+    MAT mat_courante;
+    MAT mat_prec;
     int x_init;
     int y_init;
     int x_fin;

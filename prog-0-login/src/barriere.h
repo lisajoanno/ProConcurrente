@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 
-// Structure de notre barriere
+// Structure de la barriere
 typedef struct {
 	unsigned nb_thread;
 	unsigned count;
@@ -25,9 +25,9 @@ typedef struct {
 void detruire_barriere(custom_barriere* barriere);
 
 // Initialise la barriere
-void init_barriere();
+void init_barriere(custom_barriere* barriere, unsigned nb_thread);
 
 // Simule l'action 'wait' de la barriere posix
-int barriere_wait();
+int barriere_wait(custom_barriere* barriere);
 
 #endif

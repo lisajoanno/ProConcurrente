@@ -1,6 +1,6 @@
 /**
  *
- * Auteur : 
+ * Auteur : Arnaud Garnier
  *
  * Implementation de thread et synchronisation de celles-ci
  * avec la barriere posix, puis par notre implementation de
@@ -27,16 +27,6 @@ void *thread(void *attr)
     }
     diffuser_chaleur_y_ij(p->mat_prec, p->mat_courante, p->x_init, p->x_fin, p->y_init, p->y_fin,p->taille);
 
-    // Attente des autres threads avant prochaine iteration
-    if (p->custom_barriere)
-    {
-        barriere_wait(&c_barrierY);
-    }
-    else
-    {
-        pthread_barrier_wait (&barrierY);
-    } 
-
     chauffer_zone_centrale(p->mat_prec, p->n);
 
     // Synchronisation finale
@@ -58,7 +48,9 @@ void init_threads(MAT mat_courante, MAT mat_prec, int n, int taille, int nb_thre
     ThreadParam par[nb_thread];
 
     if (nb_thread > (taille * taille))
+    {
         exit(0);
+    }
 
     int pas = taille;
     pas = taille / (1 << t);
@@ -69,7 +61,6 @@ void init_threads(MAT mat_courante, MAT mat_prec, int n, int taille, int nb_thre
     if (custom_barriere) 
     {
         init_barriere(&c_barrierX, nb_thread);
-        init_barriere(&c_barrierY, nb_thread);
         init_barriere(&c_barrier, nb_thread);
     }
     else
@@ -77,11 +68,7 @@ void init_threads(MAT mat_courante, MAT mat_prec, int n, int taille, int nb_thre
         if(pthread_barrier_init(&barrierX, NULL, nb_thread))
         {
             printf("Impossible de créer la barriere\n");
-        }
-        if(pthread_barrier_init(&barrierY, NULL, nb_thread))
-        {
-            printf("Impossible de créer la barriere\n");
-        }     
+        }  
         if(pthread_barrier_init(&barrier, NULL, nb_thread))
         {
             printf("Impossible de créer la barriere\n");
@@ -123,19 +110,16 @@ void init_threads(MAT mat_courante, MAT mat_prec, int n, int taille, int nb_thre
     if (custom_barriere)
     {
         detruire_barriere(&c_barrierX);
-        detruire_barriere(&c_barrierY);
         detruire_barriere(&c_barrier);
-        
     }
     else
     {
-        if(pthread_barrier_destroy(&barrierX)){
+        if(pthread_barrier_destroy(&barrierX))
+        {
             perror("Destruction de la barriere impossible");
         }
-        if(pthread_barrier_destroy(&barrierY)){
-            perror("Destruction de la barriere impossible");
-        }
-        if(pthread_barrier_destroy(&barrier)){
+        if(pthread_barrier_destroy(&barrier))
+        {
             perror("Destruction de la barriere impossible");
         }
     }
